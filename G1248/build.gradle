@@ -20,7 +20,7 @@ group 'chat.dim.game'
 //version '1.0-SNAPSHOT'
 version '0.0.1'
 
-def mod = 'Client'
+def mod = 'G1248'
 def desc = 'Game 1248'
 
 def gitUrl = 'https://github.com/dimgame/g1248-java.git'
