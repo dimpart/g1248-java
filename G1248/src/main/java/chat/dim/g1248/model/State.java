@@ -1,7 +1,10 @@
 package chat.dim.g1248.model;
 
+import java.util.List;
+
+import chat.dim.format.Hex;
 import chat.dim.math.Matrix;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+import chat.dim.math.Point;
 
 public class State extends Matrix {
 
@@ -17,6 +20,10 @@ public class State extends Matrix {
                 ", matrix: " + super.toString();
     }
 
+    public List<Square> getSquares() {
+        return Square.convert(toArray());
+    }
+
     /**
      *  Calculate score
      *
@@ -24,28 +31,26 @@ public class State extends Matrix {
      */
     public int getScore() {
         int score = 0;
-        int x, y, num;
+        int x, y;
         for (y = 0; y < size.height; ++y) {
             for (x = 0; x < size.width; ++x) {
-                num = getValue(x, y);
-                score += Math.pow(3, Math.log(num) / LN2);
+                score += Square.getScore(getValue(x, y));
             }
         }
         return score;
     }
-    private static final double LN2 = Math.log(2);
 
     /**
      *  Show next number
      *
      * @param step - next step
-     * @return false on full
+     * @return null on full
      */
-    public boolean showNumber(Step step) {
+    public Point showNumber(Step step) {
         int spaces = getEmptySpaces();
         if (spaces == 0) {
             // it's full
-            return false;
+            return null;
         }
         int pos = step.getPosition(spaces);
         int x, y, val;
@@ -57,11 +62,11 @@ public class State extends Matrix {
                 }
                 if (pos < 0) {
                     setValue(x, y, step.getNumber());
-                    return spaces > 1;
+                    return new Point(x, y);
                 }
             }
         }
-        return false;
+        return null;
     }
     private int getEmptySpaces() {
         int count = 0;
@@ -85,19 +90,19 @@ public class State extends Matrix {
         Step.Direction dir = step.getDirection();
         switch (dir) {
             case UP:
-                System.out.println("swipe up");
+                //System.out.println("swipe up");
                 transpose();
                 moved = swipeLeft();
                 transpose();
                 break;
             case RIGHT:
-                System.out.println("swipe right");
+                //System.out.println("swipe right");
                 flipY();
                 moved = swipeLeft();
                 flipY();
                 break;
             case DOWN:
-                System.out.println("swipe down");
+                //System.out.println("swipe down");
                 flipX();
                 transpose();
                 moved = swipeLeft();
@@ -105,7 +110,7 @@ public class State extends Matrix {
                 flipX();
                 break;
             default:
-                System.out.println("swipe left");
+                //System.out.println("swipe left");
                 moved = swipeLeft();
         }
         return moved;
@@ -164,15 +169,6 @@ public class State extends Matrix {
         return moved;
     }
 
-    public boolean stepForward(byte next) {
-        Step step = new Step(next);
-        // 1. do swipe
-        boolean moved = swipe(step);
-        // 2. show next number
-        boolean alive = showNumber(step);
-        return moved || alive;
-    }
-
     /**
      *  Run all steps to build current state
      *
@@ -180,34 +176,26 @@ public class State extends Matrix {
      * @return game state
      */
     public static State deduce(byte[] steps) {
+        assert steps.length > 0 : "steps error: " + Hex.encode(steps);
         State state = new State(4);
+        // place first number
+        Step next = new Step(steps[0]);
+        state.showNumber(next);
+        // run all steps after
         int index;
-        for (index = 0; index < steps.length; ++index) {
-            if (!state.stepForward(steps[index])) {
+        for (index = 1; index < steps.length; ++index) {
+            next = new Step(steps[index]);
+            if (!state.swipe(next)) {
+                throw new AssertionError("step error: " + next);
+            }
+            if (state.showNumber(next) == null) {
                 // it's full
                 break;
             }
         }
         if (index < steps.length) {
-            throw new ValueException("steps error: " + index + ", " + steps.length);
+            throw new AssertionError("steps error: " + index + ", " + steps.length);
         }
         return state;
-    }
-
-    public static void main(String[] args) {
-        boolean moved;
-        State state = new State(4);
-        moved = state.stepForward((byte) 0xAA);
-        System.out.println("state: " + state + ", moved: " + moved);
-        moved = state.stepForward((byte) 0x55);
-        System.out.println("state: " + state + ", moved: " + moved);
-        moved = state.stepForward((byte) 0x99);
-        System.out.println("state: " + state + ", moved: " + moved);
-        moved = state.stepForward((byte) 0x22);
-        System.out.println("state: " + state + ", moved: " + moved);
-        moved = state.stepForward((byte) 0xFF);
-        System.out.println("state: " + state + ", moved: " + moved);
-        moved = state.stepForward((byte) 0x33);
-        System.out.println("state: " + state + ", moved: " + moved);
     }
 }

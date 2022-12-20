@@ -5,7 +5,6 @@ import java.util.Map;
 
 import chat.dim.format.Base64;
 import chat.dim.math.Size;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
 /**
  *  Game History
@@ -62,43 +61,50 @@ public class History extends Score {
      * @return steps records
      */
     public byte[] getSteps() {
-        Object steps = get("steps");
-        if (steps == null) {
-            return null;
+        String steps = (String) get("steps");
+        if (steps == null || steps.length() == 0) {
+            return new byte[0];
         }
-        return Base64.decode((String) steps);
+        return Base64.decode(steps);
     }
     public void setSteps(byte[] steps) {
         String base64 = Base64.encode(steps);
         put("steps", base64);
+    }
+    public void addStep(byte next) {
+        byte[] steps = getSteps();
+        byte[] buffer = new byte[steps.length + 1];
+        System.arraycopy(steps, 0, buffer, 0, steps.length);
+        buffer[buffer.length - 1] = next;
+        setSteps(buffer);
     }
 
     public State getState() {
         // 1. deduce state
         byte[] steps = getSteps();
         State state = State.deduce(steps);
-        // 2. check score
-        if (state.getScore() != getScore()) {
-            throw new ValueException("score not match");
-        }
-        // 3. check state
-        if (!state.equals(get("state"))) {
-            throw new ValueException("state not match");
-        }
-        // 4. check board size
+        // 2. check board size
         if (!getBoardSize().equals(state.size)) {
-            throw new ValueException("board size not match");
+            throw new AssertionError("board size not match");
+        }
+        // 3. check score
+        if (state.getScore() != getScore()) {
+            throw new AssertionError("score not match");
+        }
+        // 4. check state
+        if (!state.equals(get("state"))) {
+            throw new AssertionError("state not match");
         }
         // OK
         return state;
     }
     public void setState(State state) {
-        put("state", state.toArray());
+        setState(state.toArray());
         setScore(state.getScore());
         setBoardSize(state.size);
     }
-    public void setState(List<Integer> state) {
-        put("state", state);
+    public void setState(List<?> squares) {
+        put("state", Square.revert(squares));
     }
 }
 

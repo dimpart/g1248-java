@@ -36,10 +36,10 @@ public final class Size {
     }
 
     public static Size from(String string) {
-        String [] pair = string.split("\\*");
+        String[] pair = string.split("\\*");
         if (pair.length == 2) {
-            int width = Integer.getInteger(pair[0]);
-            int height = Integer.getInteger(pair[1]);
+            int width = Integer.parseInt(pair[0]);
+            int height = Integer.parseInt(pair[1]);
             return new Size(width, height);
         } else {
             return null;

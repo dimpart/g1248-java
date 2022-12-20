@@ -36,10 +36,10 @@ public final class Range {
     }
 
     public static Range from(String string) {
-        String [] pair = string.split(",");
+        String[] pair = string.split(",");
         if (pair.length == 2) {
-            int start = Integer.getInteger(pair[0]);
-            int end = Integer.getInteger(pair[1]);
+            int start = Integer.parseInt(pair[0]);
+            int end = Integer.parseInt(pair[1]);
             return new Range(start, end);
         } else {
             return null;

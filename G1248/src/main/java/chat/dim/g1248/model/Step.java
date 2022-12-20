@@ -25,6 +25,13 @@ public final class Step {
     public Step(byte step) {
         value = step;
     }
+    public Step(int step) {
+        value = (byte) step;
+    }
+
+    public byte getByte() {
+        return value;
+    }
 
     /**
      *  Get swipe direction
@@ -65,7 +72,7 @@ public final class Step {
         UP    (2),  // 10:  y--
         DOWN  (3);  // 11:  y++
 
-        final int value;
+        public final int value;
 
         Direction(int d) {
             value = d;

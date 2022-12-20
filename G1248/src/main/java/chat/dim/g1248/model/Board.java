@@ -86,17 +86,18 @@ public class Board extends Dictionary {
         put("score", score);
     }
 
-    // current game state
+    /**
+     *  Get squares as current gate state
+     *
+     * @return squares
+     */
     @SuppressWarnings("unchecked")
-    public List<Integer> getState() {
+    public List<Square> getState() {
         Object state = get("state");
-        if (state == null) {
-            return new ArrayList<>();
-        }
-        return (List<Integer>) state;
+        return Square.convert((List<Integer>) state);
     }
-    public void setState(List<Integer> state) {
-        put("state", state);
+    public void setState(List<?> state) {
+        put("state", Square.revert(state));
     }
 
     // board size

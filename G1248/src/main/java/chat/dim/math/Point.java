@@ -36,10 +36,10 @@ public final class Point {
     }
 
     public static Point from(String string) {
-        String [] pair = string.split(",");
+        String[] pair = string.split(",");
         if (pair.length == 2) {
-            int x = Integer.getInteger(pair[0]);
-            int y = Integer.getInteger(pair[1]);
+            int x = Integer.parseInt(pair[0]);
+            int y = Integer.parseInt(pair[1]);
             return new Point(x, y);
         } else {
             return null;
