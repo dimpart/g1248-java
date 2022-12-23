@@ -1,8 +1,13 @@
 /* license: https://mit-license.org
+ *
+ *  DIM-SDK : Decentralized Instant Messaging Software Development Kit
+ *
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,30 +28,36 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.g1248.cpu;
+package chat.dim;
 
-import chat.dim.Facebook;
-import chat.dim.Messenger;
-import chat.dim.cpu.ClientContentProcessorCreator;
-import chat.dim.cpu.ContentProcessor;
-import chat.dim.protocol.ContentType;
+import chat.dim.core.Session;
+import chat.dim.crypto.SymmetricKey;
+import chat.dim.dbi.MessageDBI;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.SecureMessage;
 
-public class AppContentProcessorCreator extends ClientContentProcessorCreator {
+public class CompatibleMessenger extends ClientMessenger {
 
-    public AppContentProcessorCreator(Facebook facebook, Messenger messenger) {
-        super(facebook, messenger);
+    public CompatibleMessenger(Session session, CommonFacebook facebook, MessageDBI database) {
+        super(session, facebook, database);
     }
 
     @Override
-    public ContentProcessor createContentProcessor(int type) {
-        // application customized
-        if (ContentType.CUSTOMIZED.equals(type)) {
-            return new GameCustomizedContentProcessor(getFacebook(), getMessenger());
+    public byte[] serializeContent(Content content, SymmetricKey password, InstantMessage iMsg) {
+        if (content instanceof Command) {
+            content = Compatible.fixCommand((Command) content);
         }
-        // default
-        if (0 == type) {
-            return new AnyContentProcessor(getFacebook(), getMessenger());
+        return super.serializeContent(content, password, iMsg);
+    }
+
+    @Override
+    public Content deserializeContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
+        Content content = super.deserializeContent(data, password, sMsg);
+        if (content instanceof Command) {
+            content = Compatible.fixCommand((Command) content);
         }
-        return super.createContentProcessor(type);
+        return content;
     }
 }

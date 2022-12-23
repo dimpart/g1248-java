@@ -3,22 +3,22 @@ package chat.dim.g1248.protocol;
 import java.util.Map;
 
 /**
- *  Game Hall
- *  ~~~~~~~~~
+ *  Game Hall Content
+ *  ~~~~~~~~~~~~~~~~~
  */
-public class HallContent extends GameContent {
+public class GameHallContent extends GameCustomizedContent {
 
     public static final String MOD_NAME = "hall";
 
     // querying game tables in the hall
     public static final String ACT_SEEK_REQ = "seeking";
-    public static final String ACT_SEEK_RES = "sought";
+    public static final String ACT_SEEK_RES = "tables";
 
-    public HallContent(Map<String, Object> content) {
+    public GameHallContent(Map<String, Object> content) {
         super(content);
     }
 
-    public HallContent(String act) {
+    public GameHallContent(String act) {
         super(MOD_NAME, act);
     }
 
@@ -28,7 +28,7 @@ public class HallContent extends GameContent {
      * @param act - action name
      * @return application customized content
      */
-    public static HallContent create(String act) {
-        return new HallContent(act);
+    public static GameHallContent create(String act) {
+        return new GameHallContent(act);
     }
 }

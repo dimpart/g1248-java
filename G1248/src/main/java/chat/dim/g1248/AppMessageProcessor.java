@@ -25,15 +25,15 @@
  */
 package chat.dim.g1248;
 
-import chat.dim.ClientProcessor;
+import chat.dim.ClientMessageProcessor;
 import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.cpu.ContentProcessor;
 import chat.dim.g1248.cpu.AppContentProcessorCreator;
 
-public class SharedProcessor extends ClientProcessor {
+public class AppMessageProcessor extends ClientMessageProcessor {
 
-    public SharedProcessor(Facebook facebook, Messenger messenger) {
+    public AppMessageProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
     }
 

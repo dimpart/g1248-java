@@ -28,14 +28,13 @@ package chat.dim.g1248.cpu;
 import java.util.List;
 
 import chat.dim.Facebook;
+import chat.dim.GlobalVariable;
 import chat.dim.Messenger;
 import chat.dim.cpu.CustomizedContentHandler;
 import chat.dim.cpu.CustomizedContentProcessor;
-import chat.dim.g1248.handler.HallContentHandler;
-import chat.dim.g1248.handler.TableContentHandler;
-import chat.dim.g1248.protocol.GameContent;
-import chat.dim.g1248.protocol.HallContent;
-import chat.dim.g1248.protocol.TableContent;
+import chat.dim.g1248.protocol.GameCustomizedContent;
+import chat.dim.g1248.protocol.GameHallContent;
+import chat.dim.g1248.protocol.GameTableContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;
 import chat.dim.protocol.ReliableMessage;
@@ -46,21 +45,15 @@ import chat.dim.protocol.ReliableMessage;
  *
  *  Process customized contents for this application only
  */
-public class AppContentProcessor extends CustomizedContentProcessor {
+public class GameCustomizedContentProcessor extends CustomizedContentProcessor {
 
-    // module(s) for customized contents
-    private final CustomizedContentHandler hallHandler;
-    private final CustomizedContentHandler tableHandler;
-
-    public AppContentProcessor(Facebook facebook, Messenger messenger) {
+    public GameCustomizedContentProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
-        hallHandler = new HallContentHandler(facebook, messenger);
-        tableHandler = new TableContentHandler(facebook, messenger);
     }
 
     @Override
     protected List<Content> filter(String app, CustomizedContent content, ReliableMessage rMsg) {
-        if (app != null && app.equals(GameContent.APP_ID)) {
+        if (app != null && app.equals(GameCustomizedContent.APP_ID)) {
             // App ID match
             // return null to fetch module handler
             return null;
@@ -70,14 +63,15 @@ public class AppContentProcessor extends CustomizedContentProcessor {
 
     @Override
     protected CustomizedContentHandler fetch(String mod, CustomizedContent content, ReliableMessage rMsg) {
+        GlobalVariable shared = GlobalVariable.getInstance();
         if (mod == null) {
             throw new IllegalArgumentException("module name empty: " + content);
-        } else if (mod.equals(HallContent.MOD_NAME)) {
+        } else if (mod.equals(GameHallContent.MOD_NAME)) {
             // customized module: "hall"
-            return hallHandler;
-        } else if (mod.equals(TableContent.MOD_NAME)) {
+            return shared.gameHallContentHandler;
+        } else if (mod.equals(GameTableContent.MOD_NAME)) {
             // customized module: "table"
-            return tableHandler;
+            return shared.gameTableContentHandler;
         }
         // TODO: define your modules here
         // ...
