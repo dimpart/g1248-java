@@ -2,7 +2,7 @@ package chat.dim.game1248;
 
 import java.util.List;
 
-import chat.dim.SharedDatabase;
+import chat.dim.database.SharedDatabase;
 import chat.dim.g1248.handler.GameTableContentHandler;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;

@@ -7,6 +7,7 @@ import chat.dim.database.DocumentDatabase;
 import chat.dim.database.GroupDatabase;
 import chat.dim.database.MetaDatabase;
 import chat.dim.database.PrivateKeyDatabase;
+import chat.dim.database.SharedDatabase;
 import chat.dim.database.UserDatabase;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.dbi.SessionDBI;
@@ -15,7 +16,7 @@ import chat.dim.game1248.HallHandler;
 import chat.dim.game1248.TableHandler;
 import chat.dim.network.ClientSession;
 import chat.dim.protocol.ID;
-import chat.dim.sqlite.Database;
+import chat.dim.sqlite.DatabaseConnector;
 
 public class Client extends Terminal {
 
@@ -80,9 +81,9 @@ public class Client extends Terminal {
         String mdbPath = config.getString("sqlite", "message");
         //String sdbPath = config.getString("sqlite", "session");
 
-        Database adb = new Database(adbPath);
-        Database mdb = new Database(mdbPath);
-        //Database sdb = new Database(sdbPath);
+        DatabaseConnector adb = new DatabaseConnector(adbPath);
+        DatabaseConnector mdb = new DatabaseConnector(mdbPath);
+        //DatabaseConnector sdb = new DatabaseConnector(sdbPath);
 
         SharedDatabase db = new SharedDatabase();
         db.privateKeyDatabase = new PrivateKeyDatabase(rootDir, pubDir, priDir, adb);

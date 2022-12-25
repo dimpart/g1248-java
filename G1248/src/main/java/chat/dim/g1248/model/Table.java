@@ -31,21 +31,18 @@ import chat.dim.type.Mapper;
  *              size   : "4*4"
  *          },
  *          //...
- *      ],
- *      // score of the winner in this table, may be null
- *      best   : {
- *          bid    : {BOARD_ID},
- *          gid    : {GAME_ID},      // game id
- *          player : "{PLAYER_ID}",  // game player
- *          score  : 10000,          // game sore
- *          time   : {TIMESTAMP}
- *      }
+ *      ]
  *  }
  */
 public class Table extends Dictionary {
 
     public Table(Map<String, Object> table) {
         super(table);
+    }
+
+    // create new table
+    public Table() {
+        super();
     }
 
     /**

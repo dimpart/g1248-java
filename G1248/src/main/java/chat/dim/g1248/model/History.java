@@ -35,6 +35,11 @@ public class History extends Score {
         super(history);
     }
 
+    // create new game history
+    public History() {
+        super();
+    }
+
     /**
      *  Get size
      *

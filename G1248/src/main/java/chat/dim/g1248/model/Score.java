@@ -29,6 +29,10 @@ public class Score extends Dictionary {
         super(score);
     }
 
+    protected Score() {
+        super();
+    }
+
     /**
      *  Get Table ID
      *

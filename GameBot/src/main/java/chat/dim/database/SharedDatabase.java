@@ -1,4 +1,4 @@
-package chat.dim;
+package chat.dim.database;
 
 import java.util.List;
 import java.util.Set;
@@ -6,24 +6,26 @@ import java.util.Set;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.database.CipherKeyDatabase;
-import chat.dim.database.DocumentDatabase;
-import chat.dim.database.GroupDatabase;
-import chat.dim.database.MetaDatabase;
-import chat.dim.database.PrivateKeyDatabase;
-import chat.dim.database.UserDatabase;
 import chat.dim.dbi.AccountDBI;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.dbi.SessionDBI;
+import chat.dim.g1248.dbi.GameDBI;
+import chat.dim.g1248.model.Board;
+import chat.dim.g1248.model.History;
+import chat.dim.g1248.model.Score;
+import chat.dim.g1248.model.Table;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.sqlite.game.HallDatabase;
+import chat.dim.sqlite.game.HistoryDatabase;
+import chat.dim.sqlite.game.TableDatabase;
 import chat.dim.type.Pair;
 import chat.dim.type.Triplet;
 
-public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI {
+public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDBI {
 
     public PrivateKeyDatabase privateKeyDatabase = null;
     public MetaDatabase metaDatabase = null;
@@ -31,6 +33,44 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI {
     public UserDatabase userDatabase = null;
     public GroupDatabase groupDatabase = null;
     public CipherKeyDatabase cipherKeyDatabase = null;
+
+    public HallDatabase hallDatabase = null;
+    public TableDatabase tableDatabase = null;
+    public HistoryDatabase historyDatabase = null;
+
+    //
+    //  Game DBI
+    //
+
+    @Override
+    public List<Table> getTables(int start, int end) {
+        return hallDatabase.getTables(start, end);
+    }
+
+    @Override
+    public boolean updateTable(int tid, List<Board> boards, Score best) {
+        return hallDatabase.updateTable(tid, boards, best);
+    }
+
+    @Override
+    public List<Board> getBoards(int tid) {
+        return tableDatabase.getBoards(tid);
+    }
+
+    @Override
+    public boolean updateBoard(int tid, Board board) {
+        return tableDatabase.updateBoard(tid, board);
+    }
+
+    @Override
+    public History getHistory(int gid) {
+        return historyDatabase.getHistory(gid);
+    }
+
+    @Override
+    public boolean saveHistory(History history) {
+        return historyDatabase.saveHistory(history);
+    }
 
     //
     //  PrivateKey DBI
