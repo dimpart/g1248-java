@@ -35,6 +35,14 @@ public class Board extends Dictionary {
         super(board);
     }
 
+    public Board(int bid, int size) {
+        super();
+        setBid(bid);
+        State state = new State(size);
+        setState(state.toArray());
+        setSize(new Size(size, size));
+    }
+
     /**
      *  Get Board ID
      *
@@ -118,8 +126,9 @@ public class Board extends Dictionary {
     public static final Size DEFAULT_SIZE = new Size(4, 4);
 
     //
-    //  Factory method
+    //  Factory methods
     //
+
     @SuppressWarnings("unchecked")
     public static Board parseBoard(Object board) {
         if (board == null) {

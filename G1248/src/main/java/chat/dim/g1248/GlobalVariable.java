@@ -1,8 +1,11 @@
-package chat.dim;
+package chat.dim.g1248;
 
 import java.io.IOException;
 import java.util.List;
 
+import chat.dim.CommonFacebook;
+import chat.dim.Config;
+import chat.dim.CryptoPlugins;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.dbi.AccountDBI;
@@ -33,21 +36,21 @@ public enum GlobalVariable {
     }
 
     // Step 1: load config
-    public Config config;
+    public Config config = null;
 
     // Step 2: create databases
-    public AccountDBI adb;
-    public MessageDBI mdb;
-    public SessionDBI sdb;
+    public AccountDBI adb = null;
+    public MessageDBI mdb = null;
+    public SessionDBI sdb = null;
 
     // Step 3: create facebook
-    public CommonFacebook facebook;
+    public CommonFacebook facebook = null;
 
     //
     //  game customized content handlers
     //
-    public GameHallContentHandler gameHallContentHandler;
-    public GameTableContentHandler gameTableContentHandler;
+    public GameHallContentHandler gameHallContentHandler = null;
+    public GameTableContentHandler gameTableContentHandler = null;
 
     //
     //  default creators

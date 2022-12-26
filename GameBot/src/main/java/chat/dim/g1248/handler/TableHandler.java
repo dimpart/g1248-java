@@ -1,10 +1,9 @@
-package chat.dim.game1248;
+package chat.dim.g1248.handler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.database.SharedDatabase;
-import chat.dim.g1248.handler.GameTableContentHandler;
+import chat.dim.g1248.SharedDatabase;
 import chat.dim.g1248.model.Board;
 import chat.dim.g1248.model.History;
 import chat.dim.g1248.protocol.GameCustomizedContent;
@@ -26,11 +25,13 @@ public class TableHandler extends GameTableContentHandler {
     @Override
     protected List<Content> handleWatchRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
         // 1. get tid, bid
-        int tid = 0;
+        int tid;
         int bid = -1;
         Object integer;
         integer = content.get("tid");
-        if (integer != null) {
+        if (integer == null) {
+            return respondText("Request error", null);
+        } else {
             tid = ((Number) integer).intValue();
         }
         integer = content.get("bid");
@@ -79,6 +80,7 @@ public class TableHandler extends GameTableContentHandler {
         }
         // 2. save history
         boolean ok = database.saveHistory(history);
+        ID player = history.getPlayer();
         // 3. respond
         Content res = GameCustomizedContent.createResponse(content,
                 GameTableContent.MOD_NAME, GameTableContent.ACT_PLAY_RES);
@@ -86,6 +88,9 @@ public class TableHandler extends GameTableContentHandler {
         res.put("tid", history.getTid());
         res.put("bid", history.getBid());
         res.put("gid", history.getGid());
+        if (player != null) {
+            res.put("player", player.toString());
+        }
         res.put("OK", ok);
         List<Content> responses = new ArrayList<>();
         responses.add(Content.parse(res));

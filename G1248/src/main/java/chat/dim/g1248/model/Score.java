@@ -1,8 +1,6 @@
 package chat.dim.g1248.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import chat.dim.protocol.ID;
@@ -110,8 +108,9 @@ public class Score extends Dictionary {
     }
 
     //
-    //  Factory methods
+    //  Factory method
     //
+
     @SuppressWarnings("unchecked")
     public static Score parseScore(Object score) {
         if (score == null) {
@@ -124,6 +123,7 @@ public class Score extends Dictionary {
         return new Score((Map<String, Object>) score);
     }
 
+    /*/
     public static List<Score> convert(List<Object> array) {
         List<Score> scores = new ArrayList<>();
         Score value;
@@ -142,4 +142,5 @@ public class Score extends Dictionary {
         }
         return array;
     }
+    /*/
 }

@@ -8,17 +8,21 @@ import chat.dim.database.DocumentDatabase;
 import chat.dim.database.GroupDatabase;
 import chat.dim.database.MetaDatabase;
 import chat.dim.database.PrivateKeyDatabase;
-import chat.dim.database.SharedDatabase;
 import chat.dim.database.UserDatabase;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.dbi.SessionDBI;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.g1248.AppMessageProcessor;
-import chat.dim.game1248.HallHandler;
-import chat.dim.game1248.TableHandler;
+import chat.dim.g1248.GlobalVariable;
+import chat.dim.g1248.SharedDatabase;
+import chat.dim.g1248.handler.HallHandler;
+import chat.dim.g1248.handler.TableHandler;
 import chat.dim.network.ClientSession;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DatabaseConnector;
+import chat.dim.sqlite.game.HallDatabase;
+import chat.dim.sqlite.game.HistoryDatabase;
+import chat.dim.sqlite.game.TableDatabase;
 
 public class Client extends Terminal {
 
@@ -87,10 +91,12 @@ public class Client extends Terminal {
         String adbPath = config.getString("sqlite", "account");
         String mdbPath = config.getString("sqlite", "message");
         //String sdbPath = config.getString("sqlite", "session");
+        String gdbPath = config.getString("sqlite", "game");
 
         DatabaseConnector adb = new DatabaseConnector(adbPath);
         DatabaseConnector mdb = new DatabaseConnector(mdbPath);
         //DatabaseConnector sdb = new DatabaseConnector(sdbPath);
+        DatabaseConnector gdb = new DatabaseConnector(gdbPath);
 
         SharedDatabase db = SharedDatabase.getInstance();
         db.privateKeyDatabase = new PrivateKeyDatabase(rootDir, pubDir, priDir, adb);
@@ -99,6 +105,10 @@ public class Client extends Terminal {
         db.userDatabase = new UserDatabase(rootDir, pubDir, priDir, adb);
         db.groupDatabase = new GroupDatabase(rootDir, pubDir, priDir, adb);
         db.cipherKeyDatabase = new CipherKeyDatabase(rootDir, pubDir, priDir, mdb);
+
+        db.hallDatabase = new HallDatabase(gdb);
+        db.tableDatabase = new TableDatabase(gdb);
+        db.historyDatabase = new HistoryDatabase(gdb);
         return db;
     }
 

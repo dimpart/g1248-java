@@ -1,10 +1,9 @@
-package chat.dim.game1248;
+package chat.dim.g1248.handler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.database.SharedDatabase;
-import chat.dim.g1248.handler.GameHallContentHandler;
+import chat.dim.g1248.SharedDatabase;
 import chat.dim.g1248.model.Table;
 import chat.dim.g1248.protocol.GameCustomizedContent;
 import chat.dim.g1248.protocol.GameHallContent;

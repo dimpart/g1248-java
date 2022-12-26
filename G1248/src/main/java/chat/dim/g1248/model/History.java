@@ -57,8 +57,8 @@ public class History extends Score {
     public void setBoardSize(Size size) {
         put("size", size.toString());
     }
-    public void setBoardSize(int width, int height) {
-        setBoardSize(new Size(width, height));
+    public void setBoardSize(int size) {
+        setBoardSize(new Size(size, size));
     }
 
     /**
@@ -79,8 +79,13 @@ public class History extends Score {
     }
     public void addStep(byte next) {
         byte[] steps = getSteps();
-        byte[] buffer = new byte[steps.length + 1];
-        System.arraycopy(steps, 0, buffer, 0, steps.length);
+        byte[] buffer;
+        if (steps == null || steps.length == 0) {
+            buffer = new byte[1];
+        } else {
+            buffer = new byte[steps.length + 1];
+            System.arraycopy(steps, 0, buffer, 0, steps.length);
+        }
         buffer[buffer.length - 1] = next;
         setSteps(buffer);
     }

@@ -1,4 +1,4 @@
-package chat.dim.database;
+package chat.dim.g1248;
 
 import java.util.List;
 import java.util.Set;
@@ -7,9 +7,18 @@ import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dbi.AccountDBI;
+import chat.dim.dbi.CipherKeyDBI;
+import chat.dim.dbi.DocumentDBI;
+import chat.dim.dbi.GroupDBI;
 import chat.dim.dbi.MessageDBI;
+import chat.dim.dbi.MetaDBI;
+import chat.dim.dbi.PrivateKeyDBI;
 import chat.dim.dbi.SessionDBI;
+import chat.dim.dbi.UserDBI;
 import chat.dim.g1248.dbi.GameDBI;
+import chat.dim.g1248.dbi.HallDBI;
+import chat.dim.g1248.dbi.HistoryDBI;
+import chat.dim.g1248.dbi.TableDBI;
 import chat.dim.g1248.model.Board;
 import chat.dim.g1248.model.History;
 import chat.dim.g1248.model.Score;
@@ -19,9 +28,6 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.sqlite.game.HallDatabase;
-import chat.dim.sqlite.game.HistoryDatabase;
-import chat.dim.sqlite.game.TableDatabase;
 import chat.dim.type.Pair;
 import chat.dim.type.Triplet;
 
@@ -33,16 +39,16 @@ public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDB
         return INSTANCE;
     }
 
-    public PrivateKeyDatabase privateKeyDatabase = null;
-    public MetaDatabase metaDatabase = null;
-    public DocumentDatabase documentDatabase = null;
-    public UserDatabase userDatabase = null;
-    public GroupDatabase groupDatabase = null;
-    public CipherKeyDatabase cipherKeyDatabase = null;
+    public PrivateKeyDBI privateKeyDatabase = null;
+    public MetaDBI metaDatabase = null;
+    public DocumentDBI documentDatabase = null;
+    public UserDBI userDatabase = null;
+    public GroupDBI groupDatabase = null;
+    public CipherKeyDBI cipherKeyDatabase = null;
 
-    public HallDatabase hallDatabase = null;
-    public TableDatabase tableDatabase = null;
-    public HistoryDatabase historyDatabase = null;
+    public HallDBI hallDatabase = null;
+    public TableDBI tableDatabase = null;
+    public HistoryDBI historyDatabase = null;
 
     //
     //  Game DBI
@@ -203,7 +209,7 @@ public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDB
     }
 
     //
-    //
+    //  ReliableMessage DBI
     //
 
     @Override
@@ -222,7 +228,7 @@ public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDB
     }
 
     //
-    //
+    //  Login DBI
     //
 
     @Override
@@ -234,6 +240,10 @@ public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDB
     public boolean saveLoginCommandMessage(ID identifier, LoginCommand cmd, ReliableMessage msg) {
         return false;
     }
+
+    //
+    //  Provider DBI
+    //
 
     @Override
     public Set<Triplet<String, Integer, ID>> allNeighbors() {
