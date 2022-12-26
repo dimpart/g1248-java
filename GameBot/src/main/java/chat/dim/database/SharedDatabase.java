@@ -25,7 +25,13 @@ import chat.dim.sqlite.game.TableDatabase;
 import chat.dim.type.Pair;
 import chat.dim.type.Triplet;
 
-public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDBI {
+public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDBI {
+
+    INSTANCE;
+
+    public static SharedDatabase getInstance() {
+        return INSTANCE;
+    }
 
     public PrivateKeyDatabase privateKeyDatabase = null;
     public MetaDatabase metaDatabase = null;

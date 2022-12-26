@@ -5,6 +5,7 @@ import java.util.Map;
 
 import chat.dim.format.Base64;
 import chat.dim.math.Size;
+import chat.dim.type.Mapper;
 
 /**
  *  Game History
@@ -110,6 +111,22 @@ public class History extends Score {
     }
     public void setState(List<?> squares) {
         put("state", Square.revert(squares));
+    }
+
+    //
+    //  Factory method
+    //
+
+    @SuppressWarnings("unchecked")
+    public static History parseHistory(Object history) {
+        if (history == null) {
+            return null;
+        } else if (history instanceof History) {
+            return (History) history;
+        } else if (history instanceof Mapper) {
+            history = ((Mapper) history).toMap();
+        }
+        return new History((Map<String, Object>) history);
     }
 }
 

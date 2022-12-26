@@ -2,6 +2,7 @@ package chat.dim;
 
 import java.io.IOException;
 
+import chat.dim.core.Processor;
 import chat.dim.database.CipherKeyDatabase;
 import chat.dim.database.DocumentDatabase;
 import chat.dim.database.GroupDatabase;
@@ -12,6 +13,7 @@ import chat.dim.database.UserDatabase;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.dbi.SessionDBI;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.g1248.AppMessageProcessor;
 import chat.dim.game1248.HallHandler;
 import chat.dim.game1248.TableHandler;
 import chat.dim.network.ClientSession;
@@ -65,6 +67,11 @@ public class Client extends Terminal {
     }
 
     @Override
+    protected Processor createProcessor(CommonFacebook facebook, ClientMessenger messenger) {
+        return new AppMessageProcessor(facebook, messenger);
+    }
+
+    @Override
     protected ClientMessenger createMessenger(ClientSession session, CommonFacebook facebook) {
         MessageDBI mdb = (MessageDBI) facebook.getDatabase();
         return new CompatibleMessenger(session, facebook, mdb);
@@ -85,7 +92,7 @@ public class Client extends Terminal {
         DatabaseConnector mdb = new DatabaseConnector(mdbPath);
         //DatabaseConnector sdb = new DatabaseConnector(sdbPath);
 
-        SharedDatabase db = new SharedDatabase();
+        SharedDatabase db = SharedDatabase.getInstance();
         db.privateKeyDatabase = new PrivateKeyDatabase(rootDir, pubDir, priDir, adb);
         db.metaDatabase = new MetaDatabase(rootDir, pubDir, priDir, adb);
         db.documentDatabase = new DocumentDatabase(rootDir, pubDir, priDir, adb);
