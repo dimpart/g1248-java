@@ -13,22 +13,27 @@ import chat.dim.g1248.model.State;
 import chat.dim.math.Size;
 import chat.dim.protocol.ID;
 import chat.dim.sql.SQLConditions;
+import chat.dim.sqlite.DataRowExtractor;
 import chat.dim.sqlite.DataTableHandler;
 import chat.dim.sqlite.DatabaseConnector;
-import chat.dim.sqlite.ResultSetExtractor;
 
 /**
  *  Game History Database
  *  ~~~~~~~~~~~~~~~~~~~~~
  */
-public class HistoryDatabase extends DataTableHandler implements HistoryDBI {
+public class HistoryDatabase extends DataTableHandler<History> implements HistoryDBI {
 
-    private ResultSetExtractor<History> extractor;
+    private DataRowExtractor<History> extractor;
 
     public HistoryDatabase(DatabaseConnector sqliteConnector) {
         super(sqliteConnector);
         // lazy load
         extractor = null;
+    }
+
+    @Override
+    protected DataRowExtractor<History> getDataRowExtractor() {
+        return extractor;
     }
 
     private boolean prepare() {
@@ -45,7 +50,7 @@ public class HistoryDatabase extends DataTableHandler implements HistoryDBI {
                     "state VARCHAR(100)",
                     "size VARCHAR(5)",
             };
-            if (!createTable("t_game_history", fields)) {
+            if (!createTable(T_HISTORY, fields)) {
                 // db error
                 return false;
             }
@@ -76,6 +81,11 @@ public class HistoryDatabase extends DataTableHandler implements HistoryDBI {
         }
         return true;
     }
+    private static final String[] SELECT_COLUMNS = {"gid", "tid", "bid",
+            "player", "score", "time", "steps", "state", "size"};
+    private static final String[] INSERT_COLUMNS = {"tid", "bid",
+            "player", "score", "steps", "state", "size"};
+    private static final String T_HISTORY = "t_game_history";
 
     @Override
     public History getHistory(int gid) {
@@ -85,9 +95,8 @@ public class HistoryDatabase extends DataTableHandler implements HistoryDBI {
         }
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "gid", "=", gid);
-        String[] columns = {"gid", "tid", "bid", "player", "score", "time", "steps", "state", "size"};
-        List<History> histories = select(columns, "t_game_history", conditions, extractor);
-        return histories == null || histories.size() == 0 ? null : histories.get(0);
+        List<History> results = select(T_HISTORY, SELECT_COLUMNS, conditions);
+        return results == null || results.size() == 0 ? null : results.get(0);
     }
 
     private boolean addHistory(History history) {
@@ -101,13 +110,34 @@ public class HistoryDatabase extends DataTableHandler implements HistoryDBI {
         State state = history.getState();
         Size size = history.getBoardSize();
 
-        String pid = player == null ? "" : player.toString();
+        if (player == null) {
+            // player should not be empty
+            return false;
+        }
+
         String hex = Hex.encode(steps);
         List<Integer> squares = state.toArray();
 
-        String[] columns = {"tid", "bid", "player", "score", "steps", "state", "size"};
-        Object[] values = {tid, bid, pid, score, hex, squares, size};
-        return insert("t_game_history", columns, values) > 0;
+        Object[] values = {tid, bid, player.toString(), score, hex, squares, size};
+        if (insert(T_HISTORY, INSERT_COLUMNS, values) <= 0) {
+            // db error
+            return false;
+        }
+
+        // get new gid
+        SQLConditions conditions = new SQLConditions();
+        conditions.addCondition(null, "tid", "=", tid);
+        conditions.addCondition(SQLConditions.Relation.AND, "bid", "=", bid);
+        conditions.addCondition(SQLConditions.Relation.AND, "player", "=", player.toString());
+        List<History> results = select(T_HISTORY, SELECT_COLUMNS, conditions);
+        if (results == null || results.size() == 0) {
+            // should not happen
+            return false;
+        }
+        // update gid
+        History res = results.get(0);
+        history.setGid(res.getGid());
+        return true;
     }
 
     @Override
@@ -142,6 +172,6 @@ public class HistoryDatabase extends DataTableHandler implements HistoryDBI {
         values.put("steps", hex);
         values.put("state", squares);
         values.put("size", size);
-        return update("t_game_history", values, conditions) > 0;
+        return update(T_HISTORY, values, conditions) > 0;
     }
 }

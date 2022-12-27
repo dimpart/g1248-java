@@ -52,8 +52,8 @@ public class Board extends Dictionary {
         Object bid = get("bid");
         return bid == null ? 0 : ((Number) bid).intValue();
     }
-    public void setBid(int id) {
-        put("bid", id);
+    public void setBid(int bid) {
+        put("bid", bid);
     }
 
     /**
@@ -65,8 +65,8 @@ public class Board extends Dictionary {
         Object gid = get("gid");
         return gid == null ? 0 : ((Number) gid).intValue();
     }
-    public void setGid(int id) {
-        put("gid", id);
+    public void setGid(int gid) {
+        put("gid", gid);
     }
 
     /**

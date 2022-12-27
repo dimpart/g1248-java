@@ -40,8 +40,8 @@ public class Score extends Dictionary {
         Object tid = get("tid");
         return tid == null ? 0 : ((Number) tid).intValue();
     }
-    public void setTid(int id) {
-        put("tid", id);
+    public void setTid(int tid) {
+        put("tid", tid);
     }
 
     /**
@@ -53,8 +53,8 @@ public class Score extends Dictionary {
         Object bid = get("bid");
         return bid == null ? 0 : ((Number) bid).intValue();
     }
-    public void setBid(int id) {
-        put("bid", id);
+    public void setBid(int bid) {
+        put("bid", bid);
     }
 
     /**
@@ -66,8 +66,8 @@ public class Score extends Dictionary {
         Object gid = get("gid");
         return gid == null ? 0 : ((Number) gid).intValue();
     }
-    public void setGid(int id) {
-        put("gid", id);
+    public void setGid(int gid) {
+        put("gid", gid);
     }
 
     /**

@@ -54,8 +54,8 @@ public class Table extends Dictionary {
         Object tid = get("tid");
         return tid == null ? 0 : ((Number) tid).intValue();
     }
-    public void setTid(int id) {
-        put("tid", id);
+    public void setTid(int tid) {
+        put("tid", tid);
     }
 
     /**

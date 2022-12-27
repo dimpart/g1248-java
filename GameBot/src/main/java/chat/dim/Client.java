@@ -81,7 +81,7 @@ public class Client extends Terminal {
         return new CompatibleMessenger(session, facebook, mdb);
     }
 
-    private static SharedDatabase createDatabase(Config config) {
+    static SharedDatabase createDatabase(Config config) {
         String rootDir = config.getDatabaseRoot();
         String pubDir = config.getDatabasePublic();
         String priDir = config.getDatabasePrivate();
@@ -132,15 +132,16 @@ public class Client extends Terminal {
         // Step 3: create facebook
         CommonFacebook facebook = shared.createFacebook(db, bid);
 
-        // Step 4: create customized content handlers
-        shared.gameHallContentHandler = new HallHandler(db);
-        shared.gameTableContentHandler = new TableHandler(db);
-
-        // Step 5: create terminal
+        // Step 4: create terminal
         Terminal client = new Client(facebook, db);
         Thread thread = new Thread(client);
         thread.setDaemon(false);
         thread.start();
+        shared.terminal = client;
+
+        // Step 5: create customized content handlers
+        shared.gameHallContentHandler = new HallHandler(db);
+        shared.gameTableContentHandler = new TableHandler(db);
 
         // Step 6: connect to remote address
         String host = config.getStationHost();

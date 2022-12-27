@@ -10,22 +10,27 @@ import chat.dim.g1248.model.Board;
 import chat.dim.g1248.model.Score;
 import chat.dim.g1248.model.Table;
 import chat.dim.sql.SQLConditions;
+import chat.dim.sqlite.DataRowExtractor;
 import chat.dim.sqlite.DataTableHandler;
 import chat.dim.sqlite.DatabaseConnector;
-import chat.dim.sqlite.ResultSetExtractor;
 
 /**
  *  Game Hall Database
  *  ~~~~~~~~~~~~~~~~~~
  */
-public class HallDatabase extends DataTableHandler implements HallDBI {
+public class HallDatabase extends DataTableHandler<Table> implements HallDBI {
 
-    private ResultSetExtractor<Table> extractor;
+    private DataRowExtractor<Table> extractor;
 
     public HallDatabase(DatabaseConnector sqliteConnector) {
         super(sqliteConnector);
         // lazy load
         extractor = null;
+    }
+
+    @Override
+    protected DataRowExtractor<Table> getDataRowExtractor() {
+        return extractor;
     }
 
     private boolean prepare() {
@@ -36,7 +41,7 @@ public class HallDatabase extends DataTableHandler implements HallDBI {
                     "boards TEXT",
                     "best TEXT",
             };
-            if (!createTable("t_game_table", fields)) {
+            if (!createTable(T_TABLE, fields)) {
                 // db error
                 return false;
             }
@@ -59,6 +64,9 @@ public class HallDatabase extends DataTableHandler implements HallDBI {
         }
         return true;
     }
+    private static final String[] SELECT_COLUMNS = {"tid", "boards", "best"};
+    private static final String[] INSERT_COLUMNS = {"boards", "best"};
+    private static final String T_TABLE = "t_game_table";
 
     @Override
     public List<Table> getTables(int start, int end) {
@@ -66,42 +74,21 @@ public class HallDatabase extends DataTableHandler implements HallDBI {
             // db error
             return null;
         }
-        String[] columns = {"tid", "boards", "best"};
-        return select(columns, "t_game_table", null,
-                null, null, null, end - start, start,
-                extractor);
+
+        return select(T_TABLE, SELECT_COLUMNS, null,
+                null, null, null, end - start, start);
     }
 
-    private Table getTable(int tid) {
-        if (!prepare()) {
-            // db error
-            return null;
-        }
-        SQLConditions conditions = new SQLConditions();
-        conditions.addCondition(null, "tid", "=", tid);
-
-        String[] columns = {"tid", "boards", "best"};
-        List<Table> results = select(columns, "t_game_table", conditions, extractor);
-        // return first record only
-        return results == null || results.size() == 0 ? null : results.get(0);
-    }
-    private boolean addTable(int tid, List<Board> boards, Score best) {
+    public boolean addTable(List<Board> boards, Score best) {
         String array = boards == null ? "[]" : JSON.encode(boards);
         String dict = best == null ? "{}" : JSON.encode(best);
 
-        String[] columns = {"tid", "boards", "best"};
-        Object[] values = {tid, array, dict};
-        return insert("t_game_table", columns, values) > 0;
+        Object[] values = {array, dict};
+        return insert(T_TABLE, INSERT_COLUMNS, values) > 0;
     }
 
     @Override
     public boolean updateTable(int tid, List<Board> boards, Score best) {
-        Table old = getTable(tid);
-        if (old == null) {
-            // add as new one
-            return addTable(tid, boards, best);
-        }
-        // old record exists, update it
         String array = boards == null ? "[]" : JSON.encode(boards);
         String dict = best == null ? "{}" : JSON.encode(best);
 
@@ -111,6 +98,6 @@ public class HallDatabase extends DataTableHandler implements HallDBI {
         Map<String, Object> values = new HashMap<>();
         values.put("boards", array);
         values.put("best", dict);
-        return update("t_game_table", values, conditions) > 0;
+        return update(T_TABLE, values, conditions) > 0;
     }
 }

@@ -11,22 +11,27 @@ import chat.dim.g1248.model.Square;
 import chat.dim.math.Size;
 import chat.dim.protocol.ID;
 import chat.dim.sql.SQLConditions;
+import chat.dim.sqlite.DataRowExtractor;
 import chat.dim.sqlite.DataTableHandler;
 import chat.dim.sqlite.DatabaseConnector;
-import chat.dim.sqlite.ResultSetExtractor;
 
 /**
  *  Game Table Database
  *  ~~~~~~~~~~~~~~~~~~~
  */
-public class TableDatabase extends DataTableHandler implements TableDBI {
+public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
 
-    private ResultSetExtractor<Board> extractor;
+    private DataRowExtractor<Board> extractor;
 
     public TableDatabase(DatabaseConnector sqliteConnector) {
         super(sqliteConnector);
         // lazy load
         extractor = null;
+    }
+
+    @Override
+    protected DataRowExtractor<Board> getDataRowExtractor() {
+        return extractor;
     }
 
     private boolean prepare() {
@@ -41,7 +46,7 @@ public class TableDatabase extends DataTableHandler implements TableDBI {
                     "state VARCHAR(100)",
                     "size VARCHAR(5)",
             };
-            if (!createTable("t_game_board", fields)) {
+            if (!createTable(T_BOARD, fields)) {
                 // db error
                 return false;
             }
@@ -72,6 +77,9 @@ public class TableDatabase extends DataTableHandler implements TableDBI {
         }
         return true;
     }
+    private static final String[] SELECT_COLUMNS = {"tid", "bid", "gid", "player", "score", "state", "size"};
+    private static final String[] INSERT_COLUMNS = {"tid", "bid", "gid", "player", "score", "state", "size"};
+    private static final String T_BOARD = "t_game_board";
 
     @Override
     public List<Board> getBoards(int tid) {
@@ -81,8 +89,7 @@ public class TableDatabase extends DataTableHandler implements TableDBI {
         }
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "tid", "=", tid);
-        String[] columns = {"tid", "bid", "gid", "player", "score", "state", "size"};
-        return select(columns, "t_game_board", conditions, extractor);
+        return select(T_BOARD, SELECT_COLUMNS, conditions);
     }
 
     private Board getBoard(int tid, int bid) {
@@ -94,8 +101,7 @@ public class TableDatabase extends DataTableHandler implements TableDBI {
         conditions.addCondition(null, "tid", "=", tid);
         conditions.addCondition(SQLConditions.Relation.AND, "bid", "=", bid);
 
-        String[] columns = {"tid", "bid", "gid", "player", "score", "state", "size"};
-        List<Board> results = select(columns, "t_game_board", conditions, extractor);
+        List<Board> results = select(T_BOARD, SELECT_COLUMNS, conditions);
         // return first record only
         return results == null || results.size() == 0 ? null : results.get(0);
     }
@@ -110,9 +116,8 @@ public class TableDatabase extends DataTableHandler implements TableDBI {
         String pid = player == null ? "" : player.toString();
         List<Integer> squares = Square.revert(state);
 
-        String[] columns = {"tid", "bid", "gid", "player", "score", "state", "size"};
         Object[] values = {tid, bid, gid, pid, score, squares, size};
-        return insert("t_game_board", columns, values) > 0;
+        return insert(T_BOARD, INSERT_COLUMNS, values) > 0;
     }
 
     @Override
@@ -143,6 +148,6 @@ public class TableDatabase extends DataTableHandler implements TableDBI {
         values.put("score", score);
         values.put("state", squares);
         values.put("size", size);
-        return update("t_game_board", values, conditions) > 0;
+        return update(T_BOARD, values, conditions) > 0;
     }
 }

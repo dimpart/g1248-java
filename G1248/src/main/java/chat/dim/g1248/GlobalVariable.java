@@ -6,6 +6,7 @@ import java.util.List;
 import chat.dim.CommonFacebook;
 import chat.dim.Config;
 import chat.dim.CryptoPlugins;
+import chat.dim.Terminal;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.dbi.AccountDBI;
@@ -45,6 +46,9 @@ public enum GlobalVariable {
 
     // Step 3: create facebook
     public CommonFacebook facebook = null;
+
+    // Step 4: create client
+    public Terminal terminal = null;
 
     //
     //  game customized content handlers
