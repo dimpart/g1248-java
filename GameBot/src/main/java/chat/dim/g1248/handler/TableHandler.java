@@ -27,7 +27,6 @@ public class TableHandler extends GameTableContentHandler {
         Log.info("[GAME] received watch request: " + sender + ", " + content);
         // 1. get tid, bid
         int tid;
-        int bid = -1;
         Object integer;
         integer = content.get("tid");
         if (integer == null) {
@@ -35,27 +34,13 @@ public class TableHandler extends GameTableContentHandler {
         } else {
             tid = ((Number) integer).intValue();
         }
-        integer = content.get("bid");
-        if (integer != null) {
-            bid = ((Number) integer).intValue();
-        }
         // 2. get boards in this table
         List<Board> boards = database.getBoards(tid);
         if (boards == null) {
             boards = new ArrayList<>();
         }
-        History history = null;
-        if (bid >= 0) {
-            // 2.2. get history for current game in this board
-            for (Board item : boards) {
-                if (item.getBid() == bid) {
-                    int gid = item.getGid();
-                    history = database.getHistory(gid);
-                }
-            }
-        }
         // 3. respond
-        Content res = GameTableContent.watchResponse(tid, bid, boards, history);
+        Content res = GameTableContent.watchResponse(tid, boards);
         List<Content> responses = new ArrayList<>();
         responses.add(res);
         return responses;

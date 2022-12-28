@@ -1,6 +1,7 @@
 package chat.dim.sqlite.game;
 
 import java.sql.Time;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
                     "bid INT",
                     "player VARCHAR(64)",
                     "score INT",
-                    "time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+                    "time TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
                     "steps TEXT",
                     "state VARCHAR(100)",
                     "size VARCHAR(5)",
@@ -142,6 +143,10 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
 
     @Override
     public boolean saveHistory(History history) {
+        if (!prepare()) {
+            // db error
+            return false;
+        }
         if (history.getGid() <= 0) {
             // add as new one
             return addHistory(history);
@@ -160,6 +165,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         String pid = player == null ? "" : player.toString();
         String hex = Hex.encode(steps);
         List<Integer> squares = state.toArray();
+        String now = chat.dim.type.Time.getFullTimeString(new Date());
 
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "gid", "=", gid);
@@ -169,6 +175,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         values.put("bid", bid);
         values.put("player", pid);
         values.put("score", score);
+        values.put("time", now);
         values.put("steps", hex);
         values.put("state", squares);
         values.put("size", size);

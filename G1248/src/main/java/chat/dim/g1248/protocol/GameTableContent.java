@@ -76,14 +76,10 @@ public class GameTableContent extends GameCustomizedContent {
         return content;
     }
 
-    public static GameTableContent watchResponse(int tid, int bid, List<Board> boards, History history) {
+    public static GameTableContent watchResponse(int tid, List<Board> boards) {
         GameTableContent content = new GameTableContent(ACT_WATCH_RES);
         content.setTid(tid);
-        content.setBid(bid);
         content.setBoards(boards);
-        if (history != null) {
-            content.setHistory(history);
-        }
         return content;
     }
 
