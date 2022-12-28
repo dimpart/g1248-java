@@ -5,6 +5,7 @@ import java.util.List;
 import chat.dim.format.Hex;
 import chat.dim.math.Matrix;
 import chat.dim.math.Point;
+import chat.dim.utils.Log;
 
 public class State extends Matrix {
 
@@ -90,19 +91,19 @@ public class State extends Matrix {
         Step.Direction dir = step.getDirection();
         switch (dir) {
             case UP:
-                //System.out.println("swipe up");
+                Log.debug("swipe up");
                 transpose();
                 moved = swipeLeft();
                 transpose();
                 break;
             case RIGHT:
-                //System.out.println("swipe right");
+                Log.debug("swipe right");
                 flipY();
                 moved = swipeLeft();
                 flipY();
                 break;
             case DOWN:
-                //System.out.println("swipe down");
+                Log.debug("swipe down");
                 flipX();
                 transpose();
                 moved = swipeLeft();
@@ -110,7 +111,7 @@ public class State extends Matrix {
                 flipX();
                 break;
             default:
-                //System.out.println("swipe left");
+                Log.debug("swipe left");
                 moved = swipeLeft();
         }
         return moved;

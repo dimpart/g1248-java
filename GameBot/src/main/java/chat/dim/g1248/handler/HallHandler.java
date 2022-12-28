@@ -5,12 +5,12 @@ import java.util.List;
 
 import chat.dim.g1248.SharedDatabase;
 import chat.dim.g1248.model.Table;
-import chat.dim.g1248.protocol.GameCustomizedContent;
 import chat.dim.g1248.protocol.GameHallContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.utils.Log;
 
 public class HallHandler extends GameHallContentHandler {
 
@@ -23,6 +23,7 @@ public class HallHandler extends GameHallContentHandler {
 
     @Override
     protected List<Content> handleSeekRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
+        Log.info("[GAME] received seek request: " + sender + ", " + content);
         // 1. get range: [start, end)
         int start = 0;
         int end = 20;
@@ -41,11 +42,9 @@ public class HallHandler extends GameHallContentHandler {
             return respondText("Tables not found", null);
         }
         // 3. respond
-        Content res = GameCustomizedContent.createResponse(content,
-                GameHallContent.MOD_NAME, GameHallContent.ACT_SEEK_RES);
-        res.put("tables", Table.revert(tables));
+        GameHallContent res = GameHallContent.seekResponse(start, end, tables);
         List<Content> responses = new ArrayList<>();
-        responses.add(Content.parse(res));
+        responses.add(res);
         return responses;
     }
 

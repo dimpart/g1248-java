@@ -23,6 +23,7 @@ import chat.dim.sqlite.DatabaseConnector;
 import chat.dim.sqlite.game.HallDatabase;
 import chat.dim.sqlite.game.HistoryDatabase;
 import chat.dim.sqlite.game.TableDatabase;
+import chat.dim.utils.Log;
 
 public class Client extends Terminal {
 
@@ -118,10 +119,13 @@ public class Client extends Terminal {
 
     public static void main(String[] args) throws IOException {
 
+        Log.LEVEL = Log.DEVELOP;
+
         // Step 1: load config
         Config config = shared.createConfig(ini);
         ID bid = config.getANS(alias);
         assert bid != null : "Bot ID not defined: " + alias;
+        System.out.println("[GAME] Bot ID: " + bid);
 
         // Step 2: create database
         SharedDatabase db = createDatabase(config);

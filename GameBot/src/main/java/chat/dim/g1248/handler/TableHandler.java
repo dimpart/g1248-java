@@ -6,12 +6,12 @@ import java.util.List;
 import chat.dim.g1248.SharedDatabase;
 import chat.dim.g1248.model.Board;
 import chat.dim.g1248.model.History;
-import chat.dim.g1248.protocol.GameCustomizedContent;
 import chat.dim.g1248.protocol.GameTableContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.utils.Log;
 
 public class TableHandler extends GameTableContentHandler {
 
@@ -24,6 +24,7 @@ public class TableHandler extends GameTableContentHandler {
 
     @Override
     protected List<Content> handleWatchRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
+        Log.info("[GAME] received watch request: " + sender + ", " + content);
         // 1. get tid, bid
         int tid;
         int bid = -1;
@@ -54,14 +55,9 @@ public class TableHandler extends GameTableContentHandler {
             }
         }
         // 3. respond
-        Content res = GameCustomizedContent.createResponse(content,
-                GameTableContent.MOD_NAME, GameTableContent.ACT_WATCH_RES);
-        res.put("boards", Board.revert(boards));
-        if (history != null) {
-            res.put("history", history.toMap());
-        }
+        Content res = GameTableContent.watchResponse(tid, bid, boards, history);
         List<Content> responses = new ArrayList<>();
-        responses.add(Content.parse(res));
+        responses.add(res);
         return responses;
     }
 
@@ -73,27 +69,26 @@ public class TableHandler extends GameTableContentHandler {
 
     @Override
     protected List<Content> handlePlayRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
+        Log.info("[GAME] received play request: " + sender + ", " + content);
         // 1. get history
         History history = History.parseHistory(content.get("history"));
         if (history == null) {
             return respondText("Game history not found", null);
         }
         // 2. save history
-        boolean ok = database.saveHistory(history);
         ID player = history.getPlayer();
-        // 3. respond
-        Content res = GameCustomizedContent.createResponse(content,
-                GameTableContent.MOD_NAME, GameTableContent.ACT_PLAY_RES);
-        res.remove("history");
-        res.put("tid", history.getTid());
-        res.put("bid", history.getBid());
-        res.put("gid", history.getGid());
-        if (player != null) {
-            res.put("player", player.toString());
+        if (player == null) {
+            player = sender;
+            history.setPlayer(player);
+        } else {
+            assert player.equals(sender) : "player not match: " + player + ", " + sender;
         }
+        boolean ok = database.saveHistory(history);
+        // 3. respond
+        Content res = GameTableContent.playResponse(history.getTid(), history.getBid(), history.getGid(), player);
         res.put("OK", ok);
         List<Content> responses = new ArrayList<>();
-        responses.add(Content.parse(res));
+        responses.add(res);
         return responses;
     }
 
