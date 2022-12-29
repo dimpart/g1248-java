@@ -3,6 +3,7 @@ package chat.dim.g1248.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.Roster;
 import chat.dim.g1248.SharedDatabase;
 import chat.dim.g1248.model.Board;
 import chat.dim.g1248.model.History;
@@ -26,14 +27,20 @@ public class TableHandler extends GameTableContentHandler {
     protected List<Content> handleWatchRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
         Log.info("[GAME] received watch request: " + sender + ", " + content);
         // 1. get tid, bid
-        int tid;
+        int tid = 0;
         Object integer;
         integer = content.get("tid");
-        if (integer == null) {
-            return respondText("Request error", null);
-        } else {
+        if (integer != null) {
             tid = ((Number) integer).intValue();
         }
+        if (tid <= 0) {
+            return respondText("Watch request error", null);
+        } else {
+            // mark online
+            Roster roster = Roster.getInstance();
+            roster.addPlayer(tid, sender, 0);
+        }
+
         // 2. get boards in this table
         List<Board> boards = database.getBoards(tid);
         if (boards == null) {
@@ -52,15 +59,18 @@ public class TableHandler extends GameTableContentHandler {
         throw new AssertionError("should not happen: " + content);
     }
 
-    @Override
-    protected List<Content> handlePlayRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
-        Log.info("[GAME] received play request: " + sender + ", " + content);
-        // 1. get history
-        History history = History.parseHistory(content.get("history"));
-        if (history == null) {
-            return respondText("Game history not found", null);
-        }
-        // 2. check player
+    // send new board as a watch response to all online users in this table
+    private void broadcast(int tid, ID player, Board board) {
+        List<Board> array = new ArrayList<>();
+        array.add(board);
+        Content res = GameTableContent.watchResponse(tid, array);
+        Roster roster = Roster.getInstance();
+        roster.broadcast(tid, player, res);
+    }
+
+    private List<Content> postHistory(ID sender, History history) {
+        int tid = history.getTid();
+        int bid = history.getBid();
         ID player = history.getPlayer();
         if (player == null) {
             player = sender;
@@ -68,13 +78,16 @@ public class TableHandler extends GameTableContentHandler {
         } else {
             assert player.equals(sender) : "player not match: " + player + ", " + sender;
         }
-        int tid = history.getTid();
-        int bid = history.getBid();
-        int gid = history.getGid();
+        if (tid <= 0 || bid < 0) {
+            return respondText("Play request error", null);
+        } else {
+            // mark online
+            Roster roster = Roster.getInstance();
+            roster.addPlayer(tid, player, 0);
+        }
 
+        // check the board
         ID otherPlayer = null;
-
-        // 3. check board
         Board board = database.getBoard(tid, bid);
         if (board != null) {
             ID boardPlayer = board.getPlayer();
@@ -84,20 +97,24 @@ public class TableHandler extends GameTableContentHandler {
             }
         }
 
-        // 4. build responses
+        // build responses
         List<Content> responses = new ArrayList<>();
         if (otherPlayer == null) {
             // no other player, update the board & history
             board = Board.from(history);
             boolean ok1 = database.updateBoard(tid, board);
             boolean ok2 = database.saveHistory(history);
+            if (ok1/* && ok2*/) {
+                broadcast(tid, player, board);
+            }
             // the gid will be updated when origin value is '0'
-            gid = history.getGid();
+            int gid = history.getGid();
             // respond
             Content res = GameTableContent.playResponse(tid, bid, gid, player);
             res.put("OK", ok1 && ok2);
             responses.add(res);
         } else {
+            int gid = board.getGid();
             Content res = GameTableContent.playResponse(tid, bid, gid, otherPlayer);
             res.put("OK", false);
             responses.add(res);
@@ -107,6 +124,72 @@ public class TableHandler extends GameTableContentHandler {
             responses.add(res);
         }
         return responses;
+    }
+    private List<Content> keepOnline(ID sender, CustomizedContent content) {
+        int tid = 0, bid = -1;
+        Object intValue;
+        intValue = content.get("tid");
+        if (intValue != null) {
+            tid = ((Number) intValue).intValue();
+        }
+        intValue = content.get("bid");
+        if (intValue != null) {
+            bid = ((Number) intValue).intValue();
+        }
+        ID player = ID.parse(content.get("player"));
+        if (player == null) {
+            player = sender;
+        } else {
+            assert player.equals(sender) : "player not match: " + player + ", " + sender;
+        }
+        if (tid <= 0 || bid < 0) {
+            return respondText("Play request error", null);
+        } else {
+            // mark online
+            Roster roster = Roster.getInstance();
+            roster.addPlayer(tid, player, 0);
+        }
+
+        // check the board
+        ID otherPlayer = null;
+        Board board = database.getBoard(tid, bid);
+        if (board != null) {
+            ID boardPlayer = board.getPlayer();
+            if (boardPlayer != null && !boardPlayer.equals(player)) {
+                // this board is occupied by another player
+                otherPlayer = boardPlayer;
+            }
+        }
+        if (otherPlayer == null) {
+            // no other player on this board, return nothing
+            return null;
+        }
+        int gid = board.getGid();
+
+        // build responses
+        List<Content> responses = new ArrayList<>();
+        Content res = GameTableContent.playResponse(tid, bid, gid, otherPlayer);
+        res.put("OK", false);
+        responses.add(res);
+        // attach current board
+        List<Board> boards = database.getBoards(tid);
+        res = GameTableContent.watchResponse(tid, boards);
+        responses.add(res);
+        return responses;
+    }
+
+    @Override
+    protected List<Content> handlePlayRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
+        Log.info("[GAME] received play request: " + sender + ", " + content);
+        // 1. get history
+        History history = History.parseHistory(content.get("history"));
+        if (history == null) {
+            // just keep the seat
+            return keepOnline(sender, content);
+        } else {
+            // post history
+            return postHistory(sender, history);
+        }
     }
 
     @Override
