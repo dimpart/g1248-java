@@ -14,6 +14,7 @@ import chat.dim.dbi.MessageDBI;
 import chat.dim.dbi.SessionDBI;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.g1248.handler.GameHallContentHandler;
+import chat.dim.g1248.handler.GameHistoryContentHandler;
 import chat.dim.g1248.handler.GameTableContentHandler;
 import chat.dim.http.HTTPClient;
 import chat.dim.mkm.User;
@@ -55,6 +56,7 @@ public enum GlobalVariable {
     //
     public GameHallContentHandler gameHallContentHandler = null;
     public GameTableContentHandler gameTableContentHandler = null;
+    public GameHistoryContentHandler gameHistoryContentHandler = null;
 
     //
     //  default creators

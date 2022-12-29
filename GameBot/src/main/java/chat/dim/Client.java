@@ -16,6 +16,7 @@ import chat.dim.g1248.AppMessageProcessor;
 import chat.dim.g1248.GlobalVariable;
 import chat.dim.g1248.SharedDatabase;
 import chat.dim.g1248.handler.HallHandler;
+import chat.dim.g1248.handler.HistoryHandler;
 import chat.dim.g1248.handler.TableHandler;
 import chat.dim.network.ClientSession;
 import chat.dim.protocol.ID;
@@ -119,7 +120,7 @@ public class Client extends Terminal {
 
     public static void main(String[] args) throws IOException {
 
-        Log.LEVEL = Log.DEVELOP;
+        Log.LEVEL = Log.DEBUG;
 
         // Step 1: load config
         Config config = shared.createConfig(ini);
@@ -146,6 +147,7 @@ public class Client extends Terminal {
         // Step 5: create customized content handlers
         shared.gameHallContentHandler = new HallHandler(db);
         shared.gameTableContentHandler = new TableHandler(db);
+        shared.gameHistoryContentHandler = new HistoryHandler(db);
 
         // Step 6: connect to remote address
         String host = config.getStationHost();

@@ -91,6 +91,8 @@ public class TableHandler extends GameTableContentHandler {
             board = Board.from(history);
             boolean ok1 = database.updateBoard(tid, board);
             boolean ok2 = database.saveHistory(history);
+            // the gid will be updated when origin value is '0'
+            gid = history.getGid();
             // respond
             Content res = GameTableContent.playResponse(tid, bid, gid, player);
             res.put("OK", ok1 && ok2);

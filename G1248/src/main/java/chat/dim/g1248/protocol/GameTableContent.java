@@ -18,7 +18,13 @@ import chat.dim.protocol.ID;
  *      app   : "chat.dim.g1248",
  *      mod   : "{MODULE}",        // "table"
  *      act   : "{ACTION}",        // "watching", "boards" or "playing", "played"
- *      extra : info               // action parameters
+ *
+ *      tid     : {TABLE_ID},
+ *      bid     : {BOARD_ID},
+ *      gid     : {GAME_HISTORY_ID},
+ *      player  : {PLAYER_ID},
+ *      boards  : [...]
+ *      history : {...}
  *  }
  */
 public class GameTableContent extends GameCustomizedContent {
