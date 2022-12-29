@@ -35,5 +35,7 @@ public interface TableDBI {
 
     List<Board> getBoards(int tid);
 
+    Board getBoard(int tid, int bid);
+
     boolean updateBoard(int tid, Board board);
 }

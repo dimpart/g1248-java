@@ -60,20 +60,50 @@ public class TableHandler extends GameTableContentHandler {
         if (history == null) {
             return respondText("Game history not found", null);
         }
-        // 2. save history
+        // 2. check player
         ID player = history.getPlayer();
         if (player == null) {
             player = sender;
-            history.setPlayer(player);
+            history.setPlayer(sender);
         } else {
             assert player.equals(sender) : "player not match: " + player + ", " + sender;
         }
-        boolean ok = database.saveHistory(history);
-        // 3. respond
-        Content res = GameTableContent.playResponse(history.getTid(), history.getBid(), history.getGid(), player);
-        res.put("OK", ok);
+        int tid = history.getTid();
+        int bid = history.getBid();
+        int gid = history.getGid();
+
+        ID otherPlayer = null;
+
+        // 3. check board
+        Board board = database.getBoard(tid, bid);
+        if (board != null) {
+            ID boardPlayer = board.getPlayer();
+            if (boardPlayer != null && !boardPlayer.equals(player)) {
+                // this board is occupied by another player
+                otherPlayer = boardPlayer;
+            }
+        }
+
+        // 4. build responses
         List<Content> responses = new ArrayList<>();
-        responses.add(res);
+        if (otherPlayer == null) {
+            // no other player, update the board & history
+            board = Board.from(history);
+            boolean ok1 = database.updateBoard(tid, board);
+            boolean ok2 = database.saveHistory(history);
+            // respond
+            Content res = GameTableContent.playResponse(tid, bid, gid, player);
+            res.put("OK", ok1 && ok2);
+            responses.add(res);
+        } else {
+            Content res = GameTableContent.playResponse(tid, bid, gid, otherPlayer);
+            res.put("OK", false);
+            responses.add(res);
+            // attach current board
+            List<Board> boards = database.getBoards(tid);
+            res = GameTableContent.watchResponse(tid, boards);
+            responses.add(res);
+        }
         return responses;
     }
 

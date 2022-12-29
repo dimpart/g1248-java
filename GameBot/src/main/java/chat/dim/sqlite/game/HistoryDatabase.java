@@ -71,7 +71,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
                 info.put("gid", gid);
                 info.put("tid", tid);
                 info.put("bid", bid);
-                info.put("player", ID.parse(player));
+                info.put("player", player);
                 info.put("score", score);
                 info.put("time", time.getTime() / 1000.0f);
                 info.put("steps", steps);
@@ -108,7 +108,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         int score = history.getScore();
         //Date time = history.getTime();
         byte[] steps = history.getSteps();
-        State state = history.getState();
+        State state = history.getMatrix();
         Size size = history.getBoardSize();
 
         if (player == null) {
@@ -117,9 +117,9 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         }
 
         String hex = Hex.encode(steps);
-        List<Integer> squares = state.toArray();
+        String array = JSON.encode(state.toArray());
 
-        Object[] values = {tid, bid, player.toString(), score, hex, squares, size};
+        Object[] values = {tid, bid, player.toString(), score, hex, array, size};
         if (insert(T_HISTORY, INSERT_COLUMNS, values) <= 0) {
             // db error
             return false;
@@ -159,13 +159,13 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         int score = history.getScore();
         //Date time = history.getTime();
         byte[] steps = history.getSteps();
-        State state = history.getState();
+        State state = history.getMatrix();
         Size size = history.getBoardSize();
 
         String pid = player == null ? "" : player.toString();
-        String hex = Hex.encode(steps);
-        List<Integer> squares = state.toArray();
         String now = chat.dim.type.Time.getFullTimeString(new Date());
+        String hex = Hex.encode(steps);
+        String array = JSON.encode(state.toArray());
 
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "gid", "=", gid);
@@ -177,7 +177,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         values.put("score", score);
         values.put("time", now);
         values.put("steps", hex);
-        values.put("state", squares);
+        values.put("state", array);
         values.put("size", size);
         return update(T_HISTORY, values, conditions) > 0;
     }

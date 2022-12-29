@@ -178,7 +178,7 @@ public class State extends Matrix {
      */
     public static State deduce(byte[] steps) {
         assert steps.length > 0 : "steps error: " + Hex.encode(steps);
-        State state = new State(4);
+        State state = new State(Board.DEFAULT_SIZE.width);
         // place first number
         Step next = new Step(steps[0]);
         state.showNumber(next);

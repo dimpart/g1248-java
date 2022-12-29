@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.math.Size;
-import chat.dim.protocol.ID;
-import chat.dim.type.Dictionary;
 import chat.dim.type.Mapper;
 
 /**
@@ -21,6 +19,7 @@ import chat.dim.type.Mapper;
  *      tid    : {TABLE_ID},     // table id
  *      gid    : {GAME_ID},      // game id
  *      score  : 10000,          // current sore
+ *      time   : {TIMESTAMP},    // last update time
  *      state  : [               // current state
  *          0, 1, 2, 4,
  *          0, 1, 2, 4,
@@ -30,83 +29,20 @@ import chat.dim.type.Mapper;
  *      size   : "4*4"
  *  }
  */
-public class Board extends Dictionary {
+public class Board extends Score {
 
     public Board(Map<String, Object> board) {
         super(board);
     }
 
-    public Board(int tid, int bid, int size) {
+    public Board(int tid, int bid, Size size) {
         super();
         setTid(tid);
         setBid(bid);
-        State state = new State(size);
-        setState(state.toArray());
-        setSize(new Size(size, size));
-    }
-
-    /**
-     *  Get Table ID
-     *
-     * @return table ID
-     */
-    public int getTid() {
-        Object tid = get("tid");
-        return tid == null ? 0 : ((Number) tid).intValue();
-    }
-    public void setTid(int tid) {
-        put("tid", tid);
-    }
-
-    /**
-     *  Get Board ID
-     *
-     * @return board ID
-     */
-    public int getBid() {
-        Object bid = get("bid");
-        return bid == null ? 0 : ((Number) bid).intValue();
-    }
-    public void setBid(int bid) {
-        put("bid", bid);
-    }
-
-    /**
-     *  Get Game ID
-     *
-     * @return game history ID
-     */
-    public int getGid() {
-        Object gid = get("gid");
-        return gid == null ? 0 : ((Number) gid).intValue();
-    }
-    public void setGid(int gid) {
-        put("gid", gid);
-    }
-
-    /**
-     *  Get Game Player
-     *
-     * @return player ID
-     */
-    public ID getPlayer() {
-        return ID.parse(get("player"));
-    }
-    public void setPlayer(ID player) {
-        put("player", player.toString());
-    }
-
-    /**
-     *  Get Score Value
-     *
-     * @return score value
-     */
-    public int getScore() {
-        Object score = get("score");
-        return score == null ? 0 : ((Number) score).intValue();
-    }
-    public void setScore(int score) {
-        put("score", score);
+        assert size.width == size.height : "error size: " + size;
+        State state = new State(size.width);
+        setSquares(state.toArray());
+        setSize(size);
     }
 
     /**
@@ -115,11 +51,11 @@ public class Board extends Dictionary {
      * @return squares
      */
     @SuppressWarnings("unchecked")
-    public List<Square> getState() {
+    public List<Square> getSquares() {
         Object state = get("state");
         return Square.convert((List<Integer>) state);
     }
-    public void setState(List<?> state) {
+    public void setSquares(List<?> state) {
         put("state", Square.revert(state));
     }
 
@@ -143,6 +79,12 @@ public class Board extends Dictionary {
     //
     //  Factory methods
     //
+
+    public static Board from(History history) {
+        Map<String, Object> info = history.copyMap(false);
+        info.remove("steps");
+        return new Board(info);
+    }
 
     @SuppressWarnings("unchecked")
     public static Board parseBoard(Object board) {

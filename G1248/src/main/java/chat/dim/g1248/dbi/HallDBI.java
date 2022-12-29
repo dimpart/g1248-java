@@ -40,5 +40,7 @@ public interface HallDBI {
 
     List<Table> getTables(int start, int end);
 
+    Table getTable(int tid);
+
     boolean updateTable(int tid, List<Board> boards, Score best);
 }

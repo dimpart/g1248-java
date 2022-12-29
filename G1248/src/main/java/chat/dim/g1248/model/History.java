@@ -1,6 +1,5 @@
 package chat.dim.g1248.model;
 
-import java.util.List;
 import java.util.Map;
 
 import chat.dim.format.Base64;
@@ -30,15 +29,15 @@ import chat.dim.type.Mapper;
  *      size   : "4*4"
  *  }
  */
-public class History extends Score {
+public class History extends Board {
 
     public History(Map<String, Object> history) {
         super(history);
     }
 
     // create new game history
-    public History() {
-        super();
+    public History(int tid, int bid, Size size) {
+        super(tid, bid, size);
     }
 
     /**
@@ -47,18 +46,13 @@ public class History extends Score {
      * @return game board size
      */
     public Size getBoardSize() {
-        Object size = get("size");
-        if (size instanceof String) {
-            return Size.from((String) size);
-        } else {
-            return Board.DEFAULT_SIZE;
-        }
+        return getSize();
     }
     public void setBoardSize(Size size) {
-        put("size", size.toString());
+        setSize(size);
     }
     public void setBoardSize(int size) {
-        setBoardSize(new Size(size, size));
+        setSize(size, size);
     }
 
     /**
@@ -90,7 +84,7 @@ public class History extends Score {
         setSteps(buffer);
     }
 
-    public State getState() {
+    public State getMatrix() {
         // 1. deduce state
         byte[] steps = getSteps();
         State state = State.deduce(steps);
@@ -109,13 +103,10 @@ public class History extends Score {
         // OK
         return state;
     }
-    public void setState(State state) {
-        setState(state.toArray());
+    public void setMatrix(State state) {
+        setSquares(state.toArray());
         setScore(state.getScore());
         setBoardSize(state.size);
-    }
-    public void setState(List<?> squares) {
-        put("state", Square.revert(squares));
     }
 
     //

@@ -60,6 +60,11 @@ public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDB
     }
 
     @Override
+    public Table getTable(int tid) {
+        return hallDatabase.getTable(tid);
+    }
+
+    @Override
     public boolean updateTable(int tid, List<Board> boards, Score best) {
         return hallDatabase.updateTable(tid, boards, best);
     }
@@ -67,6 +72,11 @@ public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDB
     @Override
     public List<Board> getBoards(int tid) {
         return tableDatabase.getBoards(tid);
+    }
+
+    @Override
+    public Board getBoard(int tid, int bid) {
+        return tableDatabase.getBoard(tid, bid);
     }
 
     @Override

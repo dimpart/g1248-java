@@ -25,6 +25,8 @@
  */
 package chat.dim.math;
 
+import chat.dim.g1248.model.Board;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -244,8 +246,8 @@ public class Matrix {
     }
 
     public static void main(String[] args) {
-        final int width = 4;
-        final int height = 4;
+        final int width = Board.DEFAULT_SIZE.width;
+        final int height = Board.DEFAULT_SIZE.height;
         Matrix matrix = new Matrix(width, height);
         int x, y, value = 0;
         for (y = 0; y < height; ++y) {

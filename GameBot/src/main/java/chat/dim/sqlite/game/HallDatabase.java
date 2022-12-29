@@ -79,6 +79,20 @@ public class HallDatabase extends DataTableHandler<Table> implements HallDBI {
                 null, null, null, end - start, start);
     }
 
+    @Override
+    public Table getTable(int tid) {
+        if (!prepare()) {
+            // db error
+            return null;
+        }
+        SQLConditions conditions = new SQLConditions();
+        conditions.addCondition(null, "tid", "=", tid);
+
+        List<Table> results = select(T_TABLE, SELECT_COLUMNS, conditions);
+        // return first record only
+        return results == null || results.size() == 0 ? null : results.get(0);
+    }
+
     public boolean addTable(List<Board> boards, Score best) {
         String array = boards == null ? "[]" : JSON.encode(boards);
         String dict = best == null ? "{}" : JSON.encode(best);
