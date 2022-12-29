@@ -18,6 +18,7 @@ import chat.dim.type.Mapper;
  *      player : "{PLAYER_ID}",  // current player
  *
  *      // details, will not show in hall
+ *      tid    : {TABLE_ID},     // table id
  *      gid    : {GAME_ID},      // game id
  *      score  : 10000,          // current sore
  *      state  : [               // current state
@@ -35,12 +36,26 @@ public class Board extends Dictionary {
         super(board);
     }
 
-    public Board(int bid, int size) {
+    public Board(int tid, int bid, int size) {
         super();
+        setTid(tid);
         setBid(bid);
         State state = new State(size);
         setState(state.toArray());
         setSize(new Size(size, size));
+    }
+
+    /**
+     *  Get Table ID
+     *
+     * @return table ID
+     */
+    public int getTid() {
+        Object tid = get("tid");
+        return tid == null ? 0 : ((Number) tid).intValue();
+    }
+    public void setTid(int tid) {
+        put("tid", tid);
     }
 
     /**
