@@ -1,10 +1,10 @@
 package chat.dim.g1248.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.format.Hex;
 import chat.dim.math.Matrix;
-import chat.dim.math.Point;
 import chat.dim.math.Size;
 import chat.dim.utils.Log;
 
@@ -96,7 +96,7 @@ public class State extends Matrix {
      * @param step - next step
      * @return null on full
      */
-    public Point showNumber(Step step) {
+    public Square.Placement showNumber(Step step) {
         int spaces = getEmptySpaces();
         if (spaces == 0) {
             // it's full
@@ -111,8 +111,9 @@ public class State extends Matrix {
                     pos -= 1;
                 }
                 if (pos < 0) {
-                    setValue(x, y, step.getNumber());
-                    return new Point(x, y);
+                    val = step.getNumber();
+                    setValue(x, y, val);
+                    return Square.Placement.create(val, x, y);
                 }
             }
         }
@@ -135,41 +136,76 @@ public class State extends Matrix {
      *
      * @param step - next step
      */
-    public boolean swipe(Step step) {
-        boolean moved;
+    @SuppressWarnings("SuspiciousNameCombination")
+    public List<Square.Movement> swipe(Step step) {
+        List<Square.Movement> movements;
+        int temp;
         Step.Direction dir = step.getDirection();
         switch (dir) {
             case UP:
                 Log.debug("swipe up");
                 transpose();
-                moved = swipeLeft();
+                movements = swipeLeft();
                 transpose();
+                // revert coordinates
+                for (Square.Movement move : movements) {
+                    // swap x & y for original point
+                    temp = move.original.x;
+                    move.original.x = move.original.y;
+                    move.original.y = temp;
+                    // swap x & y for destination point
+                    temp = move.destination.x;
+                    move.destination.x = move.destination.y;
+                    move.destination.y = temp;
+                }
+                Log.debug("movements: " + movements);
                 break;
             case RIGHT:
                 Log.debug("swipe right");
                 flipY();
-                moved = swipeLeft();
+                movements = swipeLeft();
                 flipY();
+                // revert coordinates
+                for (Square.Movement move : movements) {
+                    // flip x for original point
+                    move.original.x = size.width - 1 - move.original.x;
+                    // flip x for destination point
+                    move.destination.x = size.width - 1 - move.destination.x;
+                }
+                Log.debug("movements: " + movements);
                 break;
             case DOWN:
                 Log.debug("swipe down");
                 flipX();
                 transpose();
-                moved = swipeLeft();
+                movements = swipeLeft();
                 transpose();
                 flipX();
+                // revert coordinates
+                for (Square.Movement move : movements) {
+                    // rotate x & y for original point
+                    temp = move.original.x;
+                    move.original.x = move.original.y;
+                    move.original.y = size.height - 1 - temp;
+                    // rotate x & y for destination point
+                    temp = move.destination.x;
+                    move.destination.x = move.destination.y;
+                    move.destination.y = size.height - 1 - temp;
+                }
+                Log.debug("movements: " + movements);
                 break;
             default:
                 Log.debug("swipe left");
-                moved = swipeLeft();
+                movements = swipeLeft();
+                Log.debug("movements: " + movements);
         }
-        return moved;
+        return movements;
     }
-    private boolean swipeLeft() {
+    private List<Square.Movement> swipeLeft() {
+        List<Square.Movement> movements = new ArrayList<>();
         int y, x, n;
         int end = size.width - 1;
         int value, next;
-        boolean moved = false;
         for (y = 0; y < size.height; ++y) {
             // swipe this line
             for (x = 0; x < end;) {
@@ -185,7 +221,7 @@ public class State extends Matrix {
                             // got one, move it to current position
                             setValue(x, y, next);
                             setValue(n, y, 0);
-                            moved = true;
+                            movements.add(Square.Movement.create(next, n, y, x, y));
                             break;
                         }
                     }
@@ -203,7 +239,7 @@ public class State extends Matrix {
                             // got same number, plus to current position
                             setValue(x, y, value << 1);
                             setValue(n, y, 0);
-                            moved = true;
+                            movements.add(Square.Movement.create(next, n, y, x, y));
                         }
                         break;
                     }
@@ -216,7 +252,7 @@ public class State extends Matrix {
                 }
             }
         }
-        return moved;
+        return movements;
     }
 
     /**
@@ -232,12 +268,16 @@ public class State extends Matrix {
         Step next = new Step(steps[0]);
         state.showNumber(next);
         // run all steps after
+        List<Square.Movement> movements;
+        Square.Placement placement;
         for (int index = 1; index < steps.length; ++index) {
             next = new Step(steps[index]);
-            if (!state.swipe(next)) {
+            movements = state.swipe(next);
+            if (movements.size() == 0) {
                 throw new AssertionError("step error: " + next);
             }
-            if (state.showNumber(next) == null) {
+            placement = state.showNumber(next);
+            if (placement == null) {
                 throw new AssertionError("steps error: " + index + "/" + steps.length);
             }
         }

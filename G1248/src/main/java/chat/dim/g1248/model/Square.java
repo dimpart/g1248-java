@@ -3,6 +3,8 @@ package chat.dim.g1248.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.math.Point;
+
 public class Square extends Number {
 
     private int value;
@@ -129,5 +131,49 @@ public class Square extends Number {
             }
         }
         return array;
+    }
+
+    //
+    //  Actions
+    //
+
+    public static class Movement {
+        public final Square square;
+        public final Point original;
+        public final Point destination;
+
+        public Movement(Square value, Point start, Point end) {
+            square = value;
+            original = start;
+            destination = end;
+        }
+
+        @Override
+        public String toString() {
+            return "\"" + square + "\": (" + original + ") => (" + destination + ")";
+        }
+
+        public static Movement create(int value, int x1, int y1, int x2, int y2) {
+            return new Movement(new Square(value), new Point(x1, y1), new Point(x2, y2));
+        }
+    }
+
+    public static class Placement {
+        public final Square square;
+        public final Point destination;
+
+        public Placement(Square value, Point position) {
+            square = value;
+            destination = position;
+        }
+
+        @Override
+        public String toString() {
+            return "\"" + square + "\": (" + destination + ")";
+        }
+
+        public static Placement create(int value, int x, int y) {
+            return new Placement(new Square(value), new Point(x, y));
+        }
     }
 }
