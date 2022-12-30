@@ -5,14 +5,19 @@ import java.util.List;
 import chat.dim.format.Hex;
 import chat.dim.math.Matrix;
 import chat.dim.math.Point;
+import chat.dim.math.Size;
 import chat.dim.utils.Log;
 
 public class State extends Matrix {
 
-    public State(int width) {
-        //noinspection SuspiciousNameCombination
-        super(width, width);
-        assert width > 0 : "size error: " + width;
+    public State(Size s) {
+        super(s);
+        assert s.width == s.height : "error size: " + s;
+    }
+
+    public State(int width, int height) {
+        super(width, height);
+        assert width == height : "error size: " + width + "*" + height;
     }
 
     @Override
@@ -23,6 +28,50 @@ public class State extends Matrix {
 
     public List<Square> getSquares() {
         return Square.convert(toArray());
+    }
+
+    /**
+     *  Check whether can move
+     *
+     * @return true on game over
+     */
+    public boolean isOver() {
+        assert size.width > 0 && size.height > 0 : "size error: " + size;
+        int x, y;
+        // check left-top corner
+        int val = getValue(0, 0);
+        if (val == 0) {
+            return false;
+        }
+        // check first row
+        for (x = 1; x < size.width; ++x) {
+            val = getValue(x,0);
+            if (0 == val || getValue(x-1, 0) == val) {
+                return false;
+            }
+        }
+        // check first column
+        for (y = 1; y < size.height; ++y) {
+            val = getValue(0, y);
+            if (0 == val || getValue(0, y-1) == val) {
+                return false;
+            }
+        }
+        // check others
+        for (y = 1; y < size.height; ++y) {
+            for (x = 1; x < size.width; ++x) {
+                val = getValue(x, y);
+                if (0 == val) {
+                    return false;
+                } else if (getValue(x-1, y) == val) {
+                    return false;
+                } else if (getValue(x, y-1) == val) {
+                    return false;
+                }
+            }
+        }
+        // it's full and nothing can move
+        return true;
     }
 
     /**
@@ -67,7 +116,7 @@ public class State extends Matrix {
                 }
             }
         }
-        return null;
+        throw new AssertionError("should not happen");
     }
     private int getEmptySpaces() {
         int count = 0;
@@ -176,26 +225,21 @@ public class State extends Matrix {
      * @param steps - history steps
      * @return game state
      */
-    public static State deduce(byte[] steps) {
+    public static State deduce(byte[] steps, Size size) {
         assert steps.length > 0 : "steps error: " + Hex.encode(steps);
-        State state = new State(Board.DEFAULT_SIZE.width);
+        State state = new State(size);
         // place first number
         Step next = new Step(steps[0]);
         state.showNumber(next);
         // run all steps after
-        int index;
-        for (index = 1; index < steps.length; ++index) {
+        for (int index = 1; index < steps.length; ++index) {
             next = new Step(steps[index]);
             if (!state.swipe(next)) {
                 throw new AssertionError("step error: " + next);
             }
             if (state.showNumber(next) == null) {
-                // it's full
-                break;
+                throw new AssertionError("steps error: " + index + "/" + steps.length);
             }
-        }
-        if (index < steps.length) {
-            throw new AssertionError("steps error: " + index + ", " + steps.length);
         }
         return state;
     }

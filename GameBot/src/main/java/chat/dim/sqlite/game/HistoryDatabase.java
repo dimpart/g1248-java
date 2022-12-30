@@ -109,7 +109,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         //Date time = history.getTime();
         byte[] steps = history.getSteps();
         State state = history.getMatrix();
-        Size size = history.getBoardSize();
+        Size size = history.getSize();
 
         if (player == null) {
             // player should not be empty
@@ -160,7 +160,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         Date time = history.getTime();
         byte[] steps = history.getSteps();
         State state = history.getMatrix();
-        Size size = history.getBoardSize();
+        Size size = history.getSize();
 
         if (time == null) {
             time = new Date();

@@ -40,7 +40,7 @@ public class Board extends Score {
         setTid(tid);
         setBid(bid);
         assert size.width == size.height : "error size: " + size;
-        State state = new State(size.width);
+        State state = new State(size);
         setSquares(state.toArray());
         setSize(size);
     }

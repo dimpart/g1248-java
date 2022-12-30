@@ -125,18 +125,26 @@ public class TableHandler extends GameTableContentHandler {
         // check playing board
         Board board = getPlayingBoard(tid, bid, player);
         if (board == null) {
-            // no other player on this board, update the board & history
+            // no other player on this board, update history
+            boolean ok1 = database.saveHistory(history);
+            if (!ok1) {
+                Log.error("failed to save history: " + history);
+                return responses;
+            }
+            // add board
             board = Board.from(history);
-            boolean ok1 = database.updateBoard(tid, board);
-            boolean ok2 = database.saveHistory(history);
-            if (ok1/* && ok2*/) {
+            boolean ok2 = database.updateBoard(tid, board);
+            if (ok2) {
                 broadcast(tid, player, board);
+            } else {
+                Log.error("failed to update board: " + board);
+                return responses;
             }
             // the gid will be updated when origin value is '0'
             int gid = history.getGid();
             // respond
             Content res = GameTableContent.playResponse(tid, bid, gid, player);
-            res.put("OK", ok1 && ok2);
+            res.put("OK", true);
             responses.add(res);
         } else {
             // this board is occupied by another player, respond to the sender

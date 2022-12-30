@@ -11,7 +11,6 @@ import chat.dim.database.PrivateKeyDatabase;
 import chat.dim.database.UserDatabase;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.dbi.SessionDBI;
-import chat.dim.filesys.ExternalStorage;
 import chat.dim.g1248.AppMessageProcessor;
 import chat.dim.g1248.GlobalVariable;
 import chat.dim.g1248.SharedDatabase;
@@ -88,8 +87,6 @@ public class Client extends Terminal {
         String pubDir = config.getDatabasePublic();
         String priDir = config.getDatabasePrivate();
 
-        ExternalStorage.setRoot(rootDir);
-
         String adbPath = config.getString("sqlite", "account");
         String mdbPath = config.getString("sqlite", "message");
         //String sdbPath = config.getString("sqlite", "session");
@@ -120,7 +117,7 @@ public class Client extends Terminal {
 
     public static void main(String[] args) throws IOException {
 
-        Log.LEVEL = Log.DEBUG;
+        Log.LEVEL = Log.DEVELOP;
 
         // Step 1: load config
         Config config = shared.createConfig(ini);

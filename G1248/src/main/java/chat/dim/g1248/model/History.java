@@ -40,19 +40,24 @@ public class History extends Board {
         super(tid, bid, size);
     }
 
-    /**
-     *  Get size
-     *
-     * @return game board size
-     */
-    public Size getBoardSize() {
-        return getSize();
+    @Override
+    public Map<String, Object> toMap() {
+        if (getMatrix() == null) {
+            return null;
+        }
+        return super.toMap();
     }
-    public void setBoardSize(Size size) {
-        setSize(size);
+
+    public boolean isValid() {
+        try {
+            return getMatrix() != null;
+        } catch (AssertionError e) {
+            //e.printStackTrace();
+            return false;
+        }
     }
-    public void setBoardSize(int size) {
-        setSize(size, size);
+    public boolean isOver() {
+        return getMatrix().isOver();
     }
 
     /**
@@ -85,28 +90,24 @@ public class History extends Board {
     }
 
     public State getMatrix() {
-        // 1. deduce state
+        // 1. deduce state from history steps
         byte[] steps = getSteps();
-        State state = State.deduce(steps);
-        // 2. check board size
-        if (!getBoardSize().equals(state.size)) {
-            throw new AssertionError("board size not match");
-        }
-        // 3. check score
-        if (state.getScore() != getScore()) {
+        State matrix = State.deduce(steps, getSize());
+        // 2. check score
+        if (matrix.getScore() != getScore()) {
             throw new AssertionError("score not match");
         }
-        // 4. check state
-        if (!state.equals(get("state"))) {
+        // 3. check state
+        if (!matrix.equals(get("state"))) {
             throw new AssertionError("state not match");
         }
         // OK
-        return state;
+        return matrix;
     }
     public void setMatrix(State state) {
         setSquares(state.toArray());
         setScore(state.getScore());
-        setBoardSize(state.size);
+        setSize(state.size);
     }
 
     //
