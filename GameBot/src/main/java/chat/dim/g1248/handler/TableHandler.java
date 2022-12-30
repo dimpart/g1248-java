@@ -27,29 +27,27 @@ public class TableHandler extends GameTableContentHandler {
     protected List<Content> handleWatchRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
         Log.info("[GAME] received watch request: " + sender + ", " + content);
         // 1. get tid, bid
-        int tid = 0;
+        int tid = 0, bid = -1;
         Object integer;
         integer = content.get("tid");
         if (integer != null) {
             tid = ((Number) integer).intValue();
+        }
+        integer = content.get("bid");
+        if (integer != null) {
+            bid = ((Number) integer).intValue();
         }
         if (tid <= 0) {
             return respondText("Watch request error", null);
         } else {
             // mark online
             Roster roster = Roster.getInstance();
-            roster.addPlayer(tid, sender, 0);
+            roster.addPlayer(tid, bid, sender, 0);
         }
 
-        // 2. get boards in this table
-        List<Board> boards = database.getBoards(tid);
-        if (boards == null) {
-            boards = new ArrayList<>();
-        }
-        // 3. respond
-        Content res = GameTableContent.watchResponse(tid, boards);
+        // 2. respond
         List<Content> responses = new ArrayList<>();
-        responses.add(res);
+        attachAllBoards(tid, responses);
         return responses;
     }
 
@@ -57,6 +55,22 @@ public class TableHandler extends GameTableContentHandler {
     protected List<Content> handleWatchResponse(ID sender, CustomizedContent content, ReliableMessage rMsg) {
         // S -> C: "boards"
         throw new AssertionError("should not happen: " + content);
+    }
+
+    private void attachAllBoards(int tid, List<Content> responses) {
+        List<Board> boards = database.getBoards(tid);
+        if (boards == null) {
+            //boards = new ArrayList<>();
+            return;
+        }
+        Content res = GameTableContent.watchResponse(tid, boards);
+        responses.add(res);
+    }
+    private void attachPlayingBoard(int tid, int bid, Board board, List<Content> responses) {
+        int gid = board.getGid();
+        ID player = board.getPlayer();
+        Content res = GameTableContent.playResponse(tid, bid, gid, player);
+        responses.add(res);
     }
 
     // send new board as a watch response to all online users in this table
@@ -68,6 +82,27 @@ public class TableHandler extends GameTableContentHandler {
         roster.broadcast(tid, player, res);
     }
 
+    private Board getPlayingBoard(int tid, int bid, ID player) {
+        Board board = database.getBoard(tid, bid);
+        if (board == null) {
+            // board not exists
+            return null;
+        }
+        ID boardPlayer = board.getPlayer();
+        if (boardPlayer == null || boardPlayer.equals(player)) {
+            // it's my board, erase it
+            return null;
+        }
+        // check record
+        Roster roster = Roster.getInstance();
+        if (roster.checkPlayer(tid, bid, boardPlayer, 0)) {
+            // this board is occupied by another player
+            return board;
+        } else {
+            // the other player on this board is expired, erase it
+            return null;
+        }
+    }
     private List<Content> postHistory(ID sender, History history) {
         int tid = history.getTid();
         int bid = history.getBid();
@@ -83,24 +118,14 @@ public class TableHandler extends GameTableContentHandler {
         } else {
             // mark online
             Roster roster = Roster.getInstance();
-            roster.addPlayer(tid, player, 0);
+            roster.addPlayer(tid, bid, player, 0);
         }
-
-        // check the board
-        ID otherPlayer = null;
-        Board board = database.getBoard(tid, bid);
-        if (board != null) {
-            ID boardPlayer = board.getPlayer();
-            if (boardPlayer != null && !boardPlayer.equals(player)) {
-                // this board is occupied by another player
-                otherPlayer = boardPlayer;
-            }
-        }
-
-        // build responses
         List<Content> responses = new ArrayList<>();
-        if (otherPlayer == null) {
-            // no other player, update the board & history
+
+        // check playing board
+        Board board = getPlayingBoard(tid, bid, player);
+        if (board == null) {
+            // no other player on this board, update the board & history
             board = Board.from(history);
             boolean ok1 = database.updateBoard(tid, board);
             boolean ok2 = database.saveHistory(history);
@@ -114,15 +139,14 @@ public class TableHandler extends GameTableContentHandler {
             res.put("OK", ok1 && ok2);
             responses.add(res);
         } else {
-            int gid = board.getGid();
-            Content res = GameTableContent.playResponse(tid, bid, gid, otherPlayer);
-            res.put("OK", false);
-            responses.add(res);
-            // attach current board
-            List<Board> boards = database.getBoards(tid);
-            res = GameTableContent.watchResponse(tid, boards);
-            responses.add(res);
+            // this board is occupied by another player, respond to the sender
+            // to kick it out
+            attachPlayingBoard(tid, bid, board, responses);
+            // attach current boards of this table as a watch response
+            // to let the sender refresh this table status
+            attachAllBoards(tid, responses);
         }
+
         return responses;
     }
     private List<Content> keepOnline(ID sender, CustomizedContent content) {
@@ -147,34 +171,24 @@ public class TableHandler extends GameTableContentHandler {
         } else {
             // mark online
             Roster roster = Roster.getInstance();
-            roster.addPlayer(tid, player, 0);
+            roster.addPlayer(tid, bid, player, 0);
         }
 
-        // check the board
-        ID otherPlayer = null;
-        Board board = database.getBoard(tid, bid);
-        if (board != null) {
-            ID boardPlayer = board.getPlayer();
-            if (boardPlayer != null && !boardPlayer.equals(player)) {
-                // this board is occupied by another player
-                otherPlayer = boardPlayer;
-            }
-        }
-        if (otherPlayer == null) {
+        // check playing board
+        Board board = getPlayingBoard(tid, bid, player);
+        if (board == null) {
             // no other player on this board, return nothing
             return null;
         }
-        int gid = board.getGid();
-
-        // build responses
         List<Content> responses = new ArrayList<>();
-        Content res = GameTableContent.playResponse(tid, bid, gid, otherPlayer);
-        res.put("OK", false);
-        responses.add(res);
-        // attach current board
-        List<Board> boards = database.getBoards(tid);
-        res = GameTableContent.watchResponse(tid, boards);
-        responses.add(res);
+
+        // this board is occupied by another player, respond to the sender
+        // to kick it out
+        attachPlayingBoard(tid, bid, board, responses);
+        // attach current boards of this table as a watch response
+        // to let the sender refresh this table status
+        attachAllBoards(tid, responses);
+
         return responses;
     }
 

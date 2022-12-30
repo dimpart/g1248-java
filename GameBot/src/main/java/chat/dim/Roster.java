@@ -21,20 +21,50 @@ public enum Roster {
         return INSTANCE;
     }
 
+    static class Record {
+        final int tid;
+        final int bid;
+        final long time;
+        Record(int tableId, int boardId, long now) {
+            tid = tableId;
+            bid = boardId;
+            time = now;
+        }
+    }
+
     // If there is no action, the player will leave the table after 5 minutes.
     public static long EXPIRES = 300 * 1000;
 
     private final Map<Integer, Set<ID>> allTables = new HashMap<>();
-    private final Map<ID, Long> onlineTimes = new HashMap<>();
+    private final Map<ID, Record> allRecords = new HashMap<>();
 
     /**
      *  Add player in a table
+     *  (this action will remove it from old table if exists)
      *
      * @param tid    - table id
+     * @param bid    - board id
      * @param player - player ID
      * @param now    - current time
      */
-    public void addPlayer(int tid, ID player, long now) {
+    public void addPlayer(int tid, int bid, ID player, long now) {
+        // 1. check old record
+        Record record = allRecords.get(player);
+        if (record != null && record.tid != tid) {
+            // remove from old table
+            Set<ID> table = allTables.get(record.tid);
+            if (table != null) {
+                table.remove(player);
+            }
+        }
+
+        // 2. update record
+        if (now <= 0) {
+            now = new Date().getTime();
+        }
+        allRecords.put(player, new Record(tid, bid, now));
+
+        // 3. add player into the table
         Set<ID> table = allTables.get(tid);
         if (table == null) {
             table = new HashSet<>();
@@ -43,46 +73,32 @@ public enum Roster {
         } else {
             table.add(player);
         }
-        if (now == 0) {
-            now = new Date().getTime();
-        }
-        // update online time
-        onlineTimes.put(player, now);
     }
 
     /**
-     *  Remove player from a table
+     *  Check whether a player is on the board
      *
      * @param tid    - table id
-     * @param player - player ID
-     */
-    public void removePlayer(int tid, ID player) {
-        Set<ID> table = allTables.get(tid);
-        if (table != null) {
-            table.remove(player);
-        }
-        // clear online time
-        onlineTimes.remove(player);
-    }
-
-    /**
-     *  Check whether a player is on the table
-     *
-     * @param tid    - table id
+     * @param bid    - board id
      * @param player - player ID
      * @param now    - current time
      * @return true for watching/playing on this table
      */
-    public boolean checkPlayer(int tid, ID player, long now) {
-        if (now == 0) {
-            now = new Date().getTime();
-        }
-        if (isExpired(player, now)) {
-            // expired
+    public boolean checkPlayer(int tid, int bid, ID player, long now) {
+        Record record = allRecords.get(player);
+        if (record == null) {
+            // record not found
+            return false;
+        } else if (record.tid != tid || record.bid != bid) {
+            // record not match
             return false;
         }
-        Set<ID> table = allTables.get(tid);
-        return table != null && table.contains(player);
+        // check last active time
+        if (now <= 0) {
+            now = new Date().getTime();
+        }
+        final long expired = now - EXPIRES;
+        return record.time < expired;
     }
 
     /**
@@ -92,30 +108,28 @@ public enum Roster {
      * @param now - current time
      * @return online users
      */
-    public Set<ID> getPlayers(int tid, long now) {
+    private Set<ID> getPlayers(int tid, long now) {
         Set<ID> onlineUsers = new HashSet<>();
         Set<ID> table = allTables.get(tid);
         if (table != null) {
-            if (now == 0) {
+            if (now <= 0) {
                 now = new Date().getTime();
             }
+            final long expired = now - EXPIRES;
+            Record record;
             for (ID item : table) {
-                if (isExpired(item, now)) {
+                record = allRecords.get(item);
+                if (record == null || record.tid != tid) {
+                    // record not match
+                    continue;
+                } else if (record.time > expired) {
+                    // record expired
                     continue;
                 }
                 onlineUsers.add(item);
             }
         }
         return onlineUsers;
-    }
-
-    private boolean isExpired(ID player, long now) {
-        long ts = lastTime(player);
-        return 0 < ts && (ts + EXPIRES) < now;
-    }
-    private long lastTime(ID player) {
-        Object ts = onlineTimes.get(player);
-        return ts == null ? 0 : (long) ts;
     }
 
     /**
@@ -140,7 +154,7 @@ public enum Roster {
             // handshake not accepted
             return;
         }
-        Set<ID> gamers = getPlayers(tid, 0);
+        Set<ID> gamers = getPlayers(tid, new Date().getTime());
         gamers.remove(player);
         Log.info("broadcast game content: " + player + " => " + gamers);
         for (ID member : gamers) {
