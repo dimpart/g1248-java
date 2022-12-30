@@ -157,18 +157,23 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         int gid = history.getGid();
         ID player = history.getPlayer();
         int score = history.getScore();
-        //Date time = history.getTime();
+        Date time = history.getTime();
         byte[] steps = history.getSteps();
         State state = history.getMatrix();
         Size size = history.getBoardSize();
 
+        if (time == null) {
+            time = new Date();
+        }
+
         String pid = player == null ? "" : player.toString();
-        String now = chat.dim.type.Time.getFullTimeString(new Date());
+        String now = chat.dim.type.Time.getFullTimeString(time);
         String hex = Hex.encode(steps);
         String array = JSON.encode(state.toArray());
 
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "gid", "=", gid);
+        conditions.addCondition(SQLConditions.Relation.AND, "time", "<", now);
 
         Map<String, Object> values = new HashMap<>();
         values.put("tid", tid);

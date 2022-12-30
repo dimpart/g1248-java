@@ -64,7 +64,7 @@ public class GameTableContent extends GameCustomizedContent {
     }
 
     public void setBoards(List<Board> boards) {
-        put("boards", Board.revert(boards));
+        put("boards", Board.revertBoards(boards));
     }
 
     public void setHistory(History history) {

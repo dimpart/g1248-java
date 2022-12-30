@@ -75,10 +75,10 @@ public class Hall extends Dictionary {
         if (value == null) {
             return new ArrayList<>();
         }
-        return Table.convert((List<Object>) value);
+        return Table.convertTables((List<Object>) value);
     }
     public void setTables(List<Table> tables) {
-        put("tables", Table.revert(tables));
+        put("tables", Table.revertTables(tables));
     }
 
     //

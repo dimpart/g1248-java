@@ -69,10 +69,10 @@ public class Table extends Dictionary {
         if (value == null) {
             return new ArrayList<>();
         }
-        return Board.convert((List<Object>) value);
+        return Board.convertBoards((List<Object>) value);
     }
     public void setBoards(List<Board> boards) {
-        put("boards", Board.revert(boards));
+        put("boards", Board.revertBoards(boards));
     }
 
     /**
@@ -102,7 +102,7 @@ public class Table extends Dictionary {
         return new Table((Map<String, Object>) table);
     }
 
-    public static List<Table> convert(List<Object> array) {
+    public static List<Table> convertTables(List<Object> array) {
         List<Table> tables = new ArrayList<>();
         Table value;
         for (Object item : array) {
@@ -112,7 +112,7 @@ public class Table extends Dictionary {
         }
         return tables;
     }
-    public static List<Object> revert(List<Table> tables) {
+    public static List<Object> revertTables(List<Table> tables) {
         List<Object> array = new ArrayList<>();
         for (Table item : tables) {
             assert item != null : "tables error: " + tables;

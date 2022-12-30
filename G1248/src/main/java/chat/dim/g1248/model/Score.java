@@ -1,6 +1,8 @@
 package chat.dim.g1248.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import chat.dim.protocol.ID;
@@ -107,6 +109,28 @@ public class Score extends Dictionary {
         put("time", Time.getTimestamp(time));
     }
 
+    /**
+     *  Check whether this score is newer than other score
+     *
+     * @param other - other score
+     * @return true on times exist and this.time is after than other.time
+     */
+    public boolean after(Score other) {
+        if (other == null) {
+            // this score is always the newest when other score not exists
+            return true;
+        }
+        return after(other.getTime());
+    }
+    public boolean after(Date otherTime) {
+        Date thisTime = getTime();
+        if (thisTime == null || otherTime == null) {
+            // FIXME: data error?
+            return true;
+        }
+        return thisTime.after(otherTime);
+    }
+
     //
     //  Factory method
     //
@@ -123,8 +147,7 @@ public class Score extends Dictionary {
         return new Score((Map<String, Object>) score);
     }
 
-    /*/
-    public static List<Score> convert(List<Object> array) {
+    public static List<Score> convertScores(List<Object> array) {
         List<Score> scores = new ArrayList<>();
         Score value;
         for (Object item : array) {
@@ -134,7 +157,7 @@ public class Score extends Dictionary {
         }
         return scores;
     }
-    public static List<Object> revert(List<Score> scores) {
+    public static List<Object> revertScores(List<Score> scores) {
         List<Object> array = new ArrayList<>();
         for (Score item : scores) {
             assert item != null : "scores error: " + scores;
@@ -142,5 +165,4 @@ public class Score extends Dictionary {
         }
         return array;
     }
-    /*/
 }

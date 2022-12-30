@@ -123,12 +123,16 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
         int gid = board.getGid();
         ID player = board.getPlayer();
         int score = board.getScore();
-        //Date time = board.getTime();
+        Date time = board.getTime();
         List<Square> state = board.getSquares();
         Size size = board.getSize();
 
+        if (time == null) {
+            time = new Date();
+        }
+
         String pid = player == null ? "" : player.toString();
-        String now = chat.dim.type.Time.getFullTimeString(new Date());
+        String now = chat.dim.type.Time.getFullTimeString(time);
         String array = state == null ? "[]" : JSON.encode(Square.revert(state));
 
         Board old = getBoard(tid, bid);
@@ -142,6 +146,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "tid", "=", tid);
         conditions.addCondition(SQLConditions.Relation.AND, "bid", "=", bid);
+        conditions.addCondition(SQLConditions.Relation.AND, "time", "<", now);
 
         Map<String, Object> values = new HashMap<>();
         values.put("gid", gid);

@@ -47,7 +47,7 @@ public class GameHallContent extends GameCustomizedContent {
     }
 
     public void setTables(List<Table> tables) {
-        put("tables", Table.revert(tables));
+        put("tables", Table.revertTables(tables));
     }
 
     //

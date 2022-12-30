@@ -98,7 +98,7 @@ public class Board extends Score {
         return new Board((Map<String, Object>) board);
     }
 
-    public static List<Board> convert(List<Object> array) {
+    public static List<Board> convertBoards(List<Object> array) {
         List<Board> boards = new ArrayList<>();
         Board value;
         for (Object item : array) {
@@ -108,7 +108,7 @@ public class Board extends Score {
         }
         return boards;
     }
-    public static List<Object> revert(List<Board> boards) {
+    public static List<Object> revertBoards(List<Board> boards) {
         List<Object> array = new ArrayList<>();
         for (Board item : boards) {
             assert item != null : "boards error: " + boards;
