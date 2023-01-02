@@ -29,6 +29,11 @@ public final class Step {
         value = (byte) step;
     }
 
+    @Override
+    public String toString() {
+        return "<" + getClass().getSimpleName() + " move=\"" + getDirection() + "\" number=" + getNumber() + " />";
+    }
+
     public byte getByte() {
         return value;
     }

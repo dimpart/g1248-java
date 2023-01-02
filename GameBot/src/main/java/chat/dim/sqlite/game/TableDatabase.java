@@ -146,7 +146,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "tid", "=", tid);
         conditions.addCondition(SQLConditions.Relation.AND, "bid", "=", bid);
-        conditions.addCondition(SQLConditions.Relation.AND, "time", "<", now);
+        conditions.addCondition(SQLConditions.Relation.AND, "time", "<=", now);
 
         Map<String, Object> values = new HashMap<>();
         values.put("gid", gid);

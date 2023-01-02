@@ -1,10 +1,14 @@
 package chat.dim.g1248.model;
 
+import java.util.Date;
 import java.util.Map;
 
 import chat.dim.format.Base64;
+import chat.dim.format.Hex;
 import chat.dim.math.Size;
 import chat.dim.type.Mapper;
+import chat.dim.type.Pair;
+import chat.dim.utils.Log;
 
 /**
  *  Game History
@@ -33,6 +37,7 @@ public class History extends Board {
 
     public History(Map<String, Object> history) {
         super(history);
+        correct();
     }
 
     // create new game history
@@ -42,10 +47,25 @@ public class History extends Board {
 
     @Override
     public Map<String, Object> toMap() {
-        if (getMatrix() == null) {
-            return null;
-        }
+        correct();
         return super.toMap();
+    }
+
+    private void correct() {
+        // 1. deduce state from history steps
+        byte[] steps = getSteps();
+        Pair<State, Integer> result = State.deduce(steps, getSize());
+        State matrix = result.first;
+        int count = result.second;
+        if (count < steps.length) {
+            // step error
+            byte[] partial = new byte[count];
+            System.arraycopy(steps, 0, partial, 0, count);
+            setSteps(partial);
+            setSquares(matrix.toArray());
+            setScore(matrix.getScore());
+            Log.error("steps error, cut at " + count + "/" + steps.length + ": " + Hex.encode(partial));
+        }
     }
 
     public boolean isValid() {
@@ -87,12 +107,14 @@ public class History extends Board {
         }
         buffer[buffer.length - 1] = next;
         setSteps(buffer);
+        // update time
+        setTime(new Date());
     }
 
     public State getMatrix() {
         // 1. deduce state from history steps
         byte[] steps = getSteps();
-        State matrix = State.deduce(steps, getSize());
+        State matrix = State.deduce(steps, getSize()).first;
         // 2. check score
         if (matrix.getScore() != getScore()) {
             throw new AssertionError("score not match");

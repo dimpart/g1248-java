@@ -173,7 +173,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
 
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "gid", "=", gid);
-        conditions.addCondition(SQLConditions.Relation.AND, "time", "<", now);
+        conditions.addCondition(SQLConditions.Relation.AND, "time", "<=", now);
 
         Map<String, Object> values = new HashMap<>();
         values.put("tid", tid);

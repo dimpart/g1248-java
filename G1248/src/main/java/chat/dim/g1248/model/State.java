@@ -6,6 +6,7 @@ import java.util.List;
 import chat.dim.format.Hex;
 import chat.dim.math.Matrix;
 import chat.dim.math.Size;
+import chat.dim.type.Pair;
 import chat.dim.utils.Log;
 
 public class State extends Matrix {
@@ -261,26 +262,29 @@ public class State extends Matrix {
      * @param steps - history steps
      * @return game state
      */
-    public static State deduce(byte[] steps, Size size) {
+    public static Pair<State, Integer> deduce(byte[] steps, Size size) {
         assert steps.length > 0 : "steps error: " + Hex.encode(steps);
-        State state = new State(size);
+        State matrix = new State(size);
         // place first number
         Step next = new Step(steps[0]);
-        state.showNumber(next);
+        matrix.showNumber(next);
         // run all steps after
         List<Square.Movement> movements;
         Square.Placement placement;
-        for (int index = 1; index < steps.length; ++index) {
+        int index;
+        for (index = 1; index < steps.length; ++index) {
             next = new Step(steps[index]);
-            movements = state.swipe(next);
+            movements = matrix.swipe(next);
             if (movements.size() == 0) {
-                throw new AssertionError("step error: " + next);
+                Log.error("move step error: " + index + "/" + steps.length + ", " + next);
+                break;
             }
-            placement = state.showNumber(next);
+            placement = matrix.showNumber(next);
             if (placement == null) {
-                throw new AssertionError("steps error: " + index + "/" + steps.length);
+                Log.error("show step error: " + index + "/" + steps.length + ", " + next);
+                break;
             }
         }
-        return state;
+        return new Pair<>(matrix, index);
     }
 }

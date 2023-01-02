@@ -110,10 +110,32 @@ public class Score extends Dictionary {
     }
 
     /**
+     *  Check whether this score is older than other score
+     *
+     * @param other - other score
+     * @return true on times exist and this.time is before other.time
+     */
+    public boolean before(Score other) {
+        if (other == null) {
+            // this score is always the newest when other score not exists
+            return true;
+        }
+        return before(other.getTime());
+    }
+    public boolean before(Date otherTime) {
+        Date thisTime = getTime();
+        if (thisTime == null || otherTime == null) {
+            // FIXME: data error?
+            return true;
+        }
+        return thisTime.before(otherTime);
+    }
+
+    /**
      *  Check whether this score is newer than other score
      *
      * @param other - other score
-     * @return true on times exist and this.time is after than other.time
+     * @return true on times exist and this.time is after other.time
      */
     public boolean after(Score other) {
         if (other == null) {
