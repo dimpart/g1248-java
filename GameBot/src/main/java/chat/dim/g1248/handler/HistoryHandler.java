@@ -24,7 +24,7 @@ public class HistoryHandler extends GameHistoryContentHandler {
     @Override
     protected List<Content> handleFetchRequest(ID sender, CustomizedContent content, ReliableMessage rMsg) {
         Log.info("[GAME] received fetch request: " + sender + ", " + content);
-        // 1. get tid, bid
+        // 1. get rid, bid
         int gid;
         Object integer;
         integer = content.get("gid");

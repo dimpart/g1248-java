@@ -7,8 +7,8 @@ import java.util.Map;
 import chat.dim.format.JSON;
 import chat.dim.g1248.dbi.HallDBI;
 import chat.dim.g1248.model.Board;
+import chat.dim.g1248.model.Room;
 import chat.dim.g1248.model.Score;
-import chat.dim.g1248.model.Table;
 import chat.dim.sql.SQLConditions;
 import chat.dim.sqlite.DataRowExtractor;
 import chat.dim.sqlite.DataTableHandler;
@@ -18,9 +18,9 @@ import chat.dim.sqlite.DatabaseConnector;
  *  Game Hall Database
  *  ~~~~~~~~~~~~~~~~~~
  */
-public class HallDatabase extends DataTableHandler<Table> implements HallDBI {
+public class HallDatabase extends DataTableHandler<Room> implements HallDBI {
 
-    private DataRowExtractor<Table> extractor;
+    private DataRowExtractor<Room> extractor;
 
     public HallDatabase(DatabaseConnector sqliteConnector) {
         super(sqliteConnector);
@@ -29,7 +29,7 @@ public class HallDatabase extends DataTableHandler<Table> implements HallDBI {
     }
 
     @Override
-    protected DataRowExtractor<Table> getDataRowExtractor() {
+    protected DataRowExtractor<Room> getDataRowExtractor() {
         return extractor;
     }
 
@@ -37,81 +37,81 @@ public class HallDatabase extends DataTableHandler<Table> implements HallDBI {
         if (extractor == null) {
             // create table if not exists
             String[] fields = {
-                    "tid INTEGER PRIMARY KEY AUTOINCREMENT",
+                    "rid INTEGER PRIMARY KEY AUTOINCREMENT",
                     "boards TEXT",
                     "best TEXT",
             };
-            if (!createTable(T_TABLE, fields)) {
+            if (!createTable(T_ROOM, fields)) {
                 // db error
                 return false;
             }
             // prepare result set extractor
             extractor = (resultSet, index) -> {
-                int tid = resultSet.getInt("tid");
+                int rid = resultSet.getInt("rid");
                 String boards = resultSet.getString("boards");
                 String best = resultSet.getString("best");
 
                 Map<String, Object> info = new HashMap<>();
-                info.put("tid", tid);
+                info.put("rid", rid);
                 if (boards != null && boards.length() > 0) {
                     info.put("boards", JSON.decode(boards));
                 }
                 if (best != null && best.length() > 0) {
                     info.put("best", JSON.decode(best));
                 }
-                return new Table(info);
+                return new Room(info);
             };
         }
         return true;
     }
-    private static final String[] SELECT_COLUMNS = {"tid", "boards", "best"};
+    private static final String[] SELECT_COLUMNS = {"rid", "boards", "best"};
     private static final String[] INSERT_COLUMNS = {"boards", "best"};
-    private static final String T_TABLE = "t_game_table";
+    private static final String T_ROOM = "t_game_room";
 
     @Override
-    public List<Table> getTables(int start, int end) {
+    public List<Room> getRooms(int start, int end) {
         if (!prepare()) {
             // db error
             return null;
         }
 
-        return select(T_TABLE, SELECT_COLUMNS, null,
+        return select(T_ROOM, SELECT_COLUMNS, null,
                 null, null, null, end - start, start);
     }
 
     @Override
-    public Table getTable(int tid) {
+    public Room getRoom(int rid) {
         if (!prepare()) {
             // db error
             return null;
         }
         SQLConditions conditions = new SQLConditions();
-        conditions.addCondition(null, "tid", "=", tid);
+        conditions.addCondition(null, "rid", "=", rid);
 
-        List<Table> results = select(T_TABLE, SELECT_COLUMNS, conditions);
+        List<Room> results = select(T_ROOM, SELECT_COLUMNS, conditions);
         // return first record only
         return results == null || results.size() == 0 ? null : results.get(0);
     }
 
-    public boolean addTable(List<Board> boards, Score best) {
+    public boolean addRoom(List<Board> boards, Score best) {
         String array = boards == null ? "[]" : JSON.encode(boards);
         String dict = best == null ? "{}" : JSON.encode(best);
 
         Object[] values = {array, dict};
-        return insert(T_TABLE, INSERT_COLUMNS, values) > 0;
+        return insert(T_ROOM, INSERT_COLUMNS, values) > 0;
     }
 
     @Override
-    public boolean updateTable(int tid, List<Board> boards, Score best) {
+    public boolean updateRoom(int rid, List<Board> boards, Score best) {
         String array = boards == null ? "[]" : JSON.encode(boards);
         String dict = best == null ? "{}" : JSON.encode(best);
 
         SQLConditions conditions = new SQLConditions();
-        conditions.addCondition(null, "tid", "=", tid);
+        conditions.addCondition(null, "rid", "=", rid);
 
         Map<String, Object> values = new HashMap<>();
         values.put("boards", array);
         values.put("best", dict);
-        return update(T_TABLE, values, conditions) > 0;
+        return update(T_ROOM, values, conditions) > 0;
     }
 }

@@ -8,18 +8,18 @@ import chat.dim.g1248.model.History;
 import chat.dim.protocol.ID;
 
 /**
- *  Game Table Content
- *  ~~~~~~~~~~~~~~~~~~
+ *  Game Room Content
+ *  ~~~~~~~~~~~~~~~~~
  *
  *  JSON: {
  *      type : 0xCC,
  *      sn   : 123,
  *
  *      app   : "chat.dim.g1248",
- *      mod   : "{MODULE}",        // "table"
+ *      mod   : "{MODULE}",        // "room"
  *      act   : "{ACTION}",        // "watching", "boards" or "playing", "played"
  *
- *      tid     : {TABLE_ID},
+ *      rid     : {ROOM_ID},
  *      bid     : {BOARD_ID},
  *      gid     : {GAME_HISTORY_ID},
  *      player  : {PLAYER_ID},
@@ -27,11 +27,11 @@ import chat.dim.protocol.ID;
  *      history : {...}
  *  }
  */
-public class GameTableContent extends GameCustomizedContent {
+public class GameRoomContent extends GameCustomizedContent {
 
-    public static final String MOD_NAME = "table";
+    public static final String MOD_NAME = "room";
 
-    // querying competitions on the table
+    // querying competitions on the room
     public static final String ACT_WATCH_REQ = "watching";
     public static final String ACT_WATCH_RES = "boards";
 
@@ -39,16 +39,16 @@ public class GameTableContent extends GameCustomizedContent {
     public static final String ACT_PLAY_REQ  = "playing";
     public static final String ACT_PLAY_RES  = "played";
 
-    public GameTableContent(Map<String, Object> content) {
+    public GameRoomContent(Map<String, Object> content) {
         super(content);
     }
 
-    public GameTableContent(String act) {
+    public GameRoomContent(String act) {
         super(MOD_NAME, act);
     }
 
-    public void setTid(int tid) {
-        put("tid", tid);
+    public void setRid(int rid) {
+        put("rid", rid);
     }
 
     public void setBid(int bid) {
@@ -75,29 +75,29 @@ public class GameTableContent extends GameCustomizedContent {
     //  Factory methods
     //
 
-    public static GameTableContent watch(int tid, int bid) {
-        GameTableContent content = new GameTableContent(ACT_WATCH_REQ);
-        content.setTid(tid);
+    public static GameRoomContent watch(int rid, int bid) {
+        GameRoomContent content = new GameRoomContent(ACT_WATCH_REQ);
+        content.setRid(rid);
         content.setBid(bid);
         return content;
     }
 
-    public static GameTableContent watchResponse(int tid, List<Board> boards) {
-        GameTableContent content = new GameTableContent(ACT_WATCH_RES);
-        content.setTid(tid);
+    public static GameRoomContent watchResponse(int rid, List<Board> boards) {
+        GameRoomContent content = new GameRoomContent(ACT_WATCH_RES);
+        content.setRid(rid);
         content.setBoards(boards);
         return content;
     }
 
-    public static GameTableContent play(History history) {
-        GameTableContent content = new GameTableContent(ACT_PLAY_REQ);
+    public static GameRoomContent play(History history) {
+        GameRoomContent content = new GameRoomContent(ACT_PLAY_REQ);
         content.setHistory(history);
         return content;
     }
 
-    public static GameTableContent playResponse(int tid, int bid, int gid, ID player) {
-        GameTableContent content = new GameTableContent(ACT_PLAY_RES);
-        content.setTid(tid);
+    public static GameRoomContent playResponse(int rid, int bid, int gid, ID player) {
+        GameRoomContent content = new GameRoomContent(ACT_PLAY_RES);
+        content.setRid(rid);
         content.setBid(bid);
         content.setGid(gid);
         content.setPlayer(player);

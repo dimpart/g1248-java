@@ -3,7 +3,7 @@ package chat.dim.g1248.protocol;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.g1248.model.Table;
+import chat.dim.g1248.model.Room;
 
 /**
  *  Game Hall Content
@@ -15,20 +15,20 @@ import chat.dim.g1248.model.Table;
  *
  *      app   : "chat.dim.g1248",
  *      mod   : "{MODULE}",        // "hall"
- *      act   : "{ACTION}",        // "seeking", "tables"
+ *      act   : "{ACTION}",        // "seeking", "rooms"
  *
- *      start  : 0,
- *      end    : 20,
- *      tables : [...]
+ *      start : 0,
+ *      end   : 20,
+ *      rooms : [...]
  *  }
  */
 public class GameHallContent extends GameCustomizedContent {
 
     public static final String MOD_NAME = "hall";
 
-    // querying game tables in the hall
+    // querying game rooms in the hall
     public static final String ACT_SEEK_REQ = "seeking";
-    public static final String ACT_SEEK_RES = "tables";
+    public static final String ACT_SEEK_RES = "rooms";
 
     public GameHallContent(Map<String, Object> content) {
         super(content);
@@ -46,8 +46,8 @@ public class GameHallContent extends GameCustomizedContent {
         put("end", end);
     }
 
-    public void setTables(List<Table> tables) {
-        put("tables", Table.revertTables(tables));
+    public void setRooms(List<Room> rooms) {
+        put("rooms", Room.revertRooms(rooms));
     }
 
     //
@@ -61,11 +61,11 @@ public class GameHallContent extends GameCustomizedContent {
         return content;
     }
 
-    public static GameHallContent seekResponse(int start, int end, List<Table> tables) {
+    public static GameHallContent seekResponse(int start, int end, List<Room> rooms) {
         GameHallContent content = new GameHallContent(ACT_SEEK_RES);
         content.setStart(start);
         content.setEnd(end);
-        content.setTables(tables);
+        content.setRooms(rooms);
         return content;
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.format.JSON;
-import chat.dim.g1248.dbi.TableDBI;
+import chat.dim.g1248.dbi.RoomDBI;
 import chat.dim.g1248.model.Board;
 import chat.dim.g1248.model.Stage;
 import chat.dim.math.Size;
@@ -18,14 +18,14 @@ import chat.dim.sqlite.DataTableHandler;
 import chat.dim.sqlite.DatabaseConnector;
 
 /**
- *  Game Table Database
- *  ~~~~~~~~~~~~~~~~~~~
+ *  Game Room Database
+ *  ~~~~~~~~~~~~~~~~~~
  */
-public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
+public class RoomDatabase extends DataTableHandler<Board> implements RoomDBI {
 
     private DataRowExtractor<Board> extractor;
 
-    public TableDatabase(DatabaseConnector sqliteConnector) {
+    public RoomDatabase(DatabaseConnector sqliteConnector) {
         super(sqliteConnector);
         // lazy load
         extractor = null;
@@ -41,7 +41,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
             // create table if not exists
             String[] fields = {
                     "id INTEGER PRIMARY KEY AUTOINCREMENT",
-                    "tid INT",
+                    "rid INT",
                     "bid INT",
                     "gid INT",
                     "player VARCHAR(64)",
@@ -56,7 +56,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
             }
             // prepare result set extractor
             extractor = (resultSet, index) -> {
-                int tid = resultSet.getInt("tid");
+                int rid = resultSet.getInt("rid");
                 int bid = resultSet.getInt("bid");
                 int gid = resultSet.getInt("gid");
                 String player = resultSet.getString("player");
@@ -66,7 +66,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
                 String size = resultSet.getString("size");
 
                 Map<String, Object> info = new HashMap<>();
-                info.put("tid", tid);
+                info.put("rid", rid);
                 info.put("bid", bid);
                 info.put("gid", gid);
                 if (player != null && player.length() > 0) {
@@ -83,32 +83,32 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
         }
         return true;
     }
-    private static final String[] SELECT_COLUMNS = {"tid", "bid", "gid",
+    private static final String[] SELECT_COLUMNS = {"rid", "bid", "gid",
             "player", "score", "time", "matrix", "size"};
-    private static final String[] INSERT_COLUMNS = {"tid", "bid", "gid",
+    private static final String[] INSERT_COLUMNS = {"rid", "bid", "gid",
             "player", "score", "matrix", "size"};
     private static final String T_BOARD = "t_game_board";
 
     @Override
-    public List<Board> getBoards(int tid) {
+    public List<Board> getBoards(int rid) {
         if (!prepare()) {
             // db error
             return null;
         }
         SQLConditions conditions = new SQLConditions();
-        conditions.addCondition(null, "tid", "=", tid);
+        conditions.addCondition(null, "rid", "=", rid);
         return select(T_BOARD, SELECT_COLUMNS, conditions,
                 null, null, "bid", -1, 0);
     }
 
     @Override
-    public Board getBoard(int tid, int bid) {
+    public Board getBoard(int rid, int bid) {
         if (!prepare()) {
             // db error
             return null;
         }
         SQLConditions conditions = new SQLConditions();
-        conditions.addCondition(null, "tid", "=", tid);
+        conditions.addCondition(null, "rid", "=", rid);
         conditions.addCondition(SQLConditions.Relation.AND, "bid", "=", bid);
 
         List<Board> results = select(T_BOARD, SELECT_COLUMNS, conditions,
@@ -118,7 +118,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
     }
 
     @Override
-    public boolean updateBoard(int tid, Board board) {
+    public boolean updateBoard(int rid, Board board) {
         int bid = board.getBid();
         int gid = board.getGid();
         ID player = board.getPlayer();
@@ -135,16 +135,16 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
         String now = chat.dim.type.Time.getFullTimeString(time);
         String array = matrix == null ? "[]" : JSON.encode(matrix.toArray());
 
-        Board old = getBoard(tid, bid);
+        Board old = getBoard(rid, bid);
         if (old == null) {
             // add as new one
-            Object[] values = {tid, bid, gid, pid, score, array, size};
+            Object[] values = {rid, bid, gid, pid, score, array, size};
             return insert(T_BOARD, INSERT_COLUMNS, values) > 0;
         }
         // old record exists, update it
 
         SQLConditions conditions = new SQLConditions();
-        conditions.addCondition(null, "tid", "=", tid);
+        conditions.addCondition(null, "rid", "=", rid);
         conditions.addCondition(SQLConditions.Relation.AND, "bid", "=", bid);
         conditions.addCondition(SQLConditions.Relation.AND, "time", "<=", now);
 

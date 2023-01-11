@@ -42,7 +42,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
             // create table if not exists
             String[] fields = {
                     "gid INTEGER PRIMARY KEY AUTOINCREMENT",
-                    "tid INT",
+                    "rid INT",
                     "bid INT",
                     "player VARCHAR(64)",
                     "score INT",
@@ -58,7 +58,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
             // prepare result set extractor
             extractor = (resultSet, index) -> {
                 int gid = resultSet.getInt("gid");
-                int tid = resultSet.getInt("tid");
+                int rid = resultSet.getInt("rid");
                 int bid = resultSet.getInt("bid");
                 String player = resultSet.getString("player");
                 int score = resultSet.getInt("score");
@@ -69,7 +69,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
 
                 Map<String, Object> info = new HashMap<>();
                 info.put("gid", gid);
-                info.put("tid", tid);
+                info.put("rid", rid);
                 info.put("bid", bid);
                 info.put("player", player);
                 info.put("score", score);
@@ -82,9 +82,9 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         }
         return true;
     }
-    private static final String[] SELECT_COLUMNS = {"gid", "tid", "bid",
+    private static final String[] SELECT_COLUMNS = {"gid", "rid", "bid",
             "player", "score", "time", "steps", "matrix", "size"};
-    private static final String[] INSERT_COLUMNS = {"tid", "bid",
+    private static final String[] INSERT_COLUMNS = {"rid", "bid",
             "player", "score", "steps", "matrix", "size"};
     private static final String T_HISTORY = "t_game_history";
 
@@ -101,7 +101,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
     }
 
     private boolean addHistory(History history) {
-        int tid = history.getTid();
+        int rid = history.getRid();
         int bid = history.getBid();
         //int gid = history.getGid();
         ID player = history.getPlayer();
@@ -119,7 +119,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         String hex = Hex.encode(steps);
         String array = JSON.encode(matrix.toArray());
 
-        Object[] values = {tid, bid, player.toString(), score, hex, array, size};
+        Object[] values = {rid, bid, player.toString(), score, hex, array, size};
         if (insert(T_HISTORY, INSERT_COLUMNS, values) <= 0) {
             // db error
             return false;
@@ -127,7 +127,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
 
         // get new gid
         SQLConditions conditions = new SQLConditions();
-        conditions.addCondition(null, "tid", "=", tid);
+        conditions.addCondition(null, "rid", "=", rid);
         conditions.addCondition(SQLConditions.Relation.AND, "bid", "=", bid);
         conditions.addCondition(SQLConditions.Relation.AND, "player", "=", player.toString());
         List<History> results = select(T_HISTORY, SELECT_COLUMNS, conditions);
@@ -152,7 +152,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
             return addHistory(history);
         }
         // old record exists, update it
-        int tid = history.getTid();
+        int rid = history.getRid();
         int bid = history.getBid();
         int gid = history.getGid();
         ID player = history.getPlayer();
@@ -176,7 +176,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         conditions.addCondition(SQLConditions.Relation.AND, "time", "<=", now);
 
         Map<String, Object> values = new HashMap<>();
-        values.put("tid", tid);
+        values.put("rid", rid);
         values.put("bid", bid);
         values.put("player", pid);
         values.put("score", score);

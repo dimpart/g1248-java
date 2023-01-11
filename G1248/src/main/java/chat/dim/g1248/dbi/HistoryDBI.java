@@ -7,7 +7,7 @@ import chat.dim.g1248.model.History;
  *  ~~~~~~~~~~~~
  *
  *  JSON: {
- *      tid    : {TABLE_ID},
+ *      rid    : {ROOM_ID},
  *      bid    : {BOARD_ID},
  *      gid    : {GAME_ID},      // game id
  *      player : "{PLAYER_ID}",  // game player

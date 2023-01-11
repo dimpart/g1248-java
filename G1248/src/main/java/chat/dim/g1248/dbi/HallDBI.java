@@ -3,18 +3,18 @@ package chat.dim.g1248.dbi;
 import java.util.List;
 
 import chat.dim.g1248.model.Board;
+import chat.dim.g1248.model.Room;
 import chat.dim.g1248.model.Score;
-import chat.dim.g1248.model.Table;
 
 /**
  *  Game Hall
  *  ~~~~~~~~~
  *
  *  JSON: {
- *      range  : "{start},{end}",  // count(tables) == end - start
- *      tables : [
+ *      range : "{start},{end}",  // count(rooms) == end - start
+ *      rooms : [
  *          {
- *              tid    : {TABLE_ID},
+ *              rid    : {ROOM_ID},
  *              // current playing boards
  *              boards : [
  *                  {
@@ -23,7 +23,7 @@ import chat.dim.g1248.model.Table;
  *                  },
  *                  //...
  *              ],
- *              // score of the winner in this table, may be null
+ *              // score of the winner in this room, may be null
  *              best   : {
  *                  bid    : {BOARD_ID},
  *                  gid    : {GAME_ID},      // game id
@@ -38,9 +38,9 @@ import chat.dim.g1248.model.Table;
  */
 public interface HallDBI {
 
-    List<Table> getTables(int start, int end);
+    List<Room> getRooms(int start, int end);
 
-    Table getTable(int tid);
+    Room getRoom(int rid);
 
-    boolean updateTable(int tid, List<Board> boards, Score best);
+    boolean updateRoom(int rid, List<Board> boards, Score best);
 }

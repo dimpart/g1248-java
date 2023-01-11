@@ -24,7 +24,7 @@ public abstract class GameHallContentHandler extends GameCustomizedContentHandle
             // action "seeking"
             return handleSeekRequest(sender, content, rMsg);
         } else if (act.equals(GameHallContent.ACT_SEEK_RES)) {
-            // action "tables"
+            // action "rooms"
             return handleSeekResponse(sender, content, rMsg);
         }
         // TODO: define your actions here

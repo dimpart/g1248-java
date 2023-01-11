@@ -14,7 +14,7 @@ import chat.dim.protocol.ContentType;
  *      sn   : 123,
  *
  *      app   : "chat.dim.g1248",
- *      mod   : "{MODULE}",        // "hall" or "table"
+ *      mod   : "{MODULE}",        // "hall" or "room"
  *      act   : "{ACTION}",        // action name
  *      extra : info               // action parameters
  *  }

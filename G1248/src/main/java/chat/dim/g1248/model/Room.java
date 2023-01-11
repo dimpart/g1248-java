@@ -8,11 +8,11 @@ import chat.dim.type.Dictionary;
 import chat.dim.type.Mapper;
 
 /**
- *  Game Table
- *  ~~~~~~~~~~
+ *  Game Room
+ *  ~~~~~~~~~
  *
  *  JSON: {
- *      tid    : {TABLE_ID},
+ *      rid    : {ROOM_ID},
  *      // current playing boards
  *      boards : [
  *          {
@@ -34,32 +34,32 @@ import chat.dim.type.Mapper;
  *      ]
  *  }
  */
-public class Table extends Dictionary {
+public class Room extends Dictionary {
 
-    public Table(Map<String, Object> table) {
-        super(table);
+    public Room(Map<String, Object> room) {
+        super(room);
     }
 
-    // create new table
-    public Table() {
+    // create new room
+    public Room() {
         super();
     }
 
     /**
-     *  Get Table ID
+     *  Get Room ID
      *
      * @return 0
      */
-    public int getTid() {
-        Object tid = get("tid");
-        return tid == null ? 0 : ((Number) tid).intValue();
+    public int getRid() {
+        Object rid = get("rid");
+        return rid == null ? 0 : ((Number) rid).intValue();
     }
-    public void setTid(int tid) {
-        put("tid", tid);
+    public void setRid(int rid) {
+        put("rid", rid);
     }
 
     /**
-     *  Current playing boards in this table
+     *  Current playing boards in this room
      *
      * @return boards
      */
@@ -91,31 +91,31 @@ public class Table extends Dictionary {
     //  Factory methods
     //
     @SuppressWarnings("unchecked")
-    public static Table parseTable(Object table) {
-        if (table == null) {
+    public static Room parseRoom(Object room) {
+        if (room == null) {
             return null;
-        } else if (table instanceof Table) {
-            return (Table) table;
-        } else if (table instanceof Mapper) {
-            table = ((Mapper) table).toMap();
+        } else if (room instanceof Room) {
+            return (Room) room;
+        } else if (room instanceof Mapper) {
+            room = ((Mapper) room).toMap();
         }
-        return new Table((Map<String, Object>) table);
+        return new Room((Map<String, Object>) room);
     }
 
-    public static List<Table> convertTables(List<Object> array) {
-        List<Table> tables = new ArrayList<>();
-        Table value;
+    public static List<Room> convertRooms(List<Object> array) {
+        List<Room> rooms = new ArrayList<>();
+        Room value;
         for (Object item : array) {
-            value = parseTable(item);
-            assert value != null : "table error: " + item;
-            tables.add(value);
+            value = parseRoom(item);
+            assert value != null : "room error: " + item;
+            rooms.add(value);
         }
-        return tables;
+        return rooms;
     }
-    public static List<Object> revertTables(List<Table> tables) {
+    public static List<Object> revertRooms(List<Room> rooms) {
         List<Object> array = new ArrayList<>();
-        for (Table item : tables) {
-            assert item != null : "tables error: " + tables;
+        for (Room item : rooms) {
+            assert item != null : "rooms error: " + rooms;
             array.add(item.toMap());
         }
         return array;

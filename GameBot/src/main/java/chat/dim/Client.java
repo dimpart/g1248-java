@@ -15,13 +15,13 @@ import chat.dim.g1248.GlobalVariable;
 import chat.dim.g1248.SharedDatabase;
 import chat.dim.g1248.handler.HallHandler;
 import chat.dim.g1248.handler.HistoryHandler;
-import chat.dim.g1248.handler.TableHandler;
+import chat.dim.g1248.handler.RoomHandler;
 import chat.dim.network.ClientSession;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DatabaseConnector;
 import chat.dim.sqlite.game.HallDatabase;
 import chat.dim.sqlite.game.HistoryDatabase;
-import chat.dim.sqlite.game.TableDatabase;
+import chat.dim.sqlite.game.RoomDatabase;
 import chat.dim.utils.Log;
 
 public class Client extends Terminal {
@@ -105,7 +105,7 @@ public class Client extends Terminal {
         db.cipherKeyDatabase = new CipherKeyDatabase(rootDir, pubDir, priDir, mdb);
 
         db.hallDatabase = new HallDatabase(gdb);
-        db.tableDatabase = new TableDatabase(gdb);
+        db.roomDatabase = new RoomDatabase(gdb);
         db.historyDatabase = new HistoryDatabase(gdb);
         return db;
     }
@@ -142,7 +142,7 @@ public class Client extends Terminal {
 
         // Step 5: create customized content handlers
         shared.gameHallContentHandler = new HallHandler(db);
-        shared.gameTableContentHandler = new TableHandler(db);
+        shared.gameRoomContentHandler = new RoomHandler(db);
         shared.gameHistoryContentHandler = new HistoryHandler(db);
 
         // Step 6: connect to remote address

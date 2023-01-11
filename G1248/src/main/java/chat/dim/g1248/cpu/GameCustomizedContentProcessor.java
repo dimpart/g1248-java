@@ -10,7 +10,7 @@ import chat.dim.g1248.GlobalVariable;
 import chat.dim.g1248.protocol.GameCustomizedContent;
 import chat.dim.g1248.protocol.GameHallContent;
 import chat.dim.g1248.protocol.GameHistoryContent;
-import chat.dim.g1248.protocol.GameTableContent;
+import chat.dim.g1248.protocol.GameRoomContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;
 import chat.dim.protocol.ReliableMessage;
@@ -45,9 +45,9 @@ public class GameCustomizedContentProcessor extends CustomizedContentProcessor {
         } else if (mod.equals(GameHallContent.MOD_NAME)) {
             // customized module: "hall"
             return shared.gameHallContentHandler;
-        } else if (mod.equals(GameTableContent.MOD_NAME)) {
-            // customized module: "table"
-            return shared.gameTableContentHandler;
+        } else if (mod.equals(GameRoomContent.MOD_NAME)) {
+            // customized module: "room"
+            return shared.gameRoomContentHandler;
         } else if (mod.equals(GameHistoryContent.MOD_NAME)) {
             // customized module: "history"
             return shared.gameHistoryContentHandler;

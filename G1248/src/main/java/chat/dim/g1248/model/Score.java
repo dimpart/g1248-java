@@ -15,7 +15,7 @@ import chat.dim.type.Time;
  *  ~~~~~~~~~~
  *
  *  JSON: {
- *      tid    : {TABLE_ID},
+ *      rid    : {ROOM_ID},
  *      bid    : {BOARD_ID},
  *      gid    : {GAME_ID},      // game id
  *      player : "{PLAYER_ID}",  // game player
@@ -34,16 +34,16 @@ public class Score extends Dictionary {
     }
 
     /**
-     *  Get Table ID
+     *  Get Room ID
      *
      * @return 0
      */
-    public int getTid() {
-        Object tid = get("tid");
-        return tid == null ? 0 : ((Number) tid).intValue();
+    public int getRid() {
+        Object rid = get("rid");
+        return rid == null ? 0 : ((Number) rid).intValue();
     }
-    public void setTid(int tid) {
-        put("tid", tid);
+    public void setRid(int rid) {
+        put("rid", rid);
     }
 
     /**

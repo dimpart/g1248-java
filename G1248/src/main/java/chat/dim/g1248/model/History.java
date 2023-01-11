@@ -15,7 +15,7 @@ import chat.dim.utils.Log;
  *  ~~~~~~~~~~~~
  *
  *  JSON: {
- *      tid    : {TABLE_ID},
+ *      rid    : {ROOM_ID},
  *      bid    : {BOARD_ID},
  *      gid    : {GAME_ID},      // game id
  *      player : "{PLAYER_ID}",  // game player
@@ -40,8 +40,8 @@ public class History extends Board {
     }
 
     // create new game history
-    public History(int tid, int bid, Size size) {
-        super(tid, bid, size);
+    public History(int rid, int bid, Size size) {
+        super(rid, bid, size);
     }
 
     @Override

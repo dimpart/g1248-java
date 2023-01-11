@@ -16,7 +16,7 @@ import chat.dim.type.Mapper;
  *      player : "{PLAYER_ID}",  // current player
  *
  *      // details, will not show in hall
- *      tid    : {TABLE_ID},     // table id
+ *      rid    : {ROOM_ID},      // room id
  *      gid    : {GAME_ID},      // game id
  *      score  : 10000,          // current sore
  *      time   : {TIMESTAMP},    // last update time
@@ -35,9 +35,9 @@ public class Board extends Score {
         super(board);
     }
 
-    public Board(int tid, int bid, Size size) {
+    public Board(int rid, int bid, Size size) {
         super();
-        setTid(tid);
+        setRid(rid);
         setBid(bid);
         setSize(size);
         setMatrix(new Stage(size));

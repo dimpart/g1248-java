@@ -2,34 +2,34 @@ package chat.dim.g1248.handler;
 
 import java.util.List;
 
-import chat.dim.g1248.protocol.GameTableContent;
+import chat.dim.g1248.protocol.GameRoomContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
 
 /**
- *  Handler for Game Table Content
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *  Handler for Game Room Content
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
  *  Handler for customized content
  */
-public abstract class GameTableContentHandler extends GameCustomizedContentHandler {
+public abstract class GameRoomContentHandler extends GameCustomizedContentHandler {
 
     @Override
     public List<Content> handleAction(String act, ID sender, CustomizedContent content, ReliableMessage rMsg) {
         if (act == null) {
             throw new IllegalArgumentException("action name empty: " + content);
-        } else if (act.equals(GameTableContent.ACT_WATCH_REQ)) {
+        } else if (act.equals(GameRoomContent.ACT_WATCH_REQ)) {
             // action "watching"
             return handleWatchRequest(sender, content, rMsg);
-        } else if (act.equals(GameTableContent.ACT_WATCH_RES)) {
+        } else if (act.equals(GameRoomContent.ACT_WATCH_RES)) {
             // action "boards"
             return handleWatchResponse(sender, content, rMsg);
-        } else if (act.equals(GameTableContent.ACT_PLAY_REQ)) {
+        } else if (act.equals(GameRoomContent.ACT_PLAY_REQ)) {
             // action "playing"
             return handlePlayRequest(sender, content, rMsg);
-        } else if (act.equals(GameTableContent.ACT_PLAY_RES)) {
+        } else if (act.equals(GameRoomContent.ACT_PLAY_RES)) {
             // action "played"
             return handlePlayResponse(sender, content, rMsg);
         }

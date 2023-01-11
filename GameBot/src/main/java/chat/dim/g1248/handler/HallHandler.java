@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.g1248.SharedDatabase;
-import chat.dim.g1248.model.Table;
+import chat.dim.g1248.model.Room;
 import chat.dim.g1248.protocol.GameHallContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;
@@ -36,13 +36,13 @@ public class HallHandler extends GameHallContentHandler {
         if (integer != null) {
             end = ((Number) integer).intValue();
         }
-        // 2. get tables with the range
-        List<Table> tables = database.getTables(start, end);
-        if (tables == null || tables.size() == 0) {
-            return respondText("Tables not found", null);
+        // 2. get rooms with the range
+        List<Room> rooms = database.getRooms(start, end);
+        if (rooms == null || rooms.size() == 0) {
+            return respondText("Rooms not found", null);
         }
         // 3. respond
-        GameHallContent res = GameHallContent.seekResponse(start, end, tables);
+        GameHallContent res = GameHallContent.seekResponse(start, end, rooms);
         List<Content> responses = new ArrayList<>();
         responses.add(res);
         return responses;
@@ -50,7 +50,7 @@ public class HallHandler extends GameHallContentHandler {
 
     @Override
     protected List<Content> handleSeekResponse(ID sender, CustomizedContent content, ReliableMessage rMsg) {
-        // S -> C: "tables"
+        // S -> C: "rooms"
         throw new AssertionError("should not happen: " + content);
     }
 }

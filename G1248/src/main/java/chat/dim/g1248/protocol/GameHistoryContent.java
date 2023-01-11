@@ -5,15 +5,15 @@ import java.util.Map;
 import chat.dim.g1248.model.History;
 
 /**
- *  Game Table Content
- *  ~~~~~~~~~~~~~~~~~~
+ *  Game History Content
+ *  ~~~~~~~~~~~~~~~~~~~~
  *
  *  JSON: {
  *      type : 0xCC,
  *      sn   : 123,
  *
  *      app   : "chat.dim.g1248",
- *      mod   : "{MODULE}",        // "table"
+ *      mod   : "{MODULE}",        // "room"
  *      act   : "{ACTION}",        // "watching", "boards" or "playing", "played"
  *
  *      gid     : {GAME_HISTORY_ID},
@@ -24,7 +24,7 @@ public class GameHistoryContent extends GameCustomizedContent {
 
     public static final String MOD_NAME = "history";
 
-    // querying game tables in the hall
+    // querying game history
     public static final String ACT_FETCH_REQ = "fetching";
     public static final String ACT_FETCH_RES = "fetched";
 

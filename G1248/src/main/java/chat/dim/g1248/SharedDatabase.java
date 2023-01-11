@@ -18,11 +18,11 @@ import chat.dim.dbi.UserDBI;
 import chat.dim.g1248.dbi.GameDBI;
 import chat.dim.g1248.dbi.HallDBI;
 import chat.dim.g1248.dbi.HistoryDBI;
-import chat.dim.g1248.dbi.TableDBI;
+import chat.dim.g1248.dbi.RoomDBI;
 import chat.dim.g1248.model.Board;
 import chat.dim.g1248.model.History;
+import chat.dim.g1248.model.Room;
 import chat.dim.g1248.model.Score;
-import chat.dim.g1248.model.Table;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
@@ -47,7 +47,7 @@ public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDB
     public CipherKeyDBI cipherKeyDatabase = null;
 
     public HallDBI hallDatabase = null;
-    public TableDBI tableDatabase = null;
+    public RoomDBI roomDatabase = null;
     public HistoryDBI historyDatabase = null;
 
     //
@@ -55,33 +55,33 @@ public enum SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, GameDB
     //
 
     @Override
-    public List<Table> getTables(int start, int end) {
-        return hallDatabase.getTables(start, end);
+    public List<Room> getRooms(int start, int end) {
+        return hallDatabase.getRooms(start, end);
     }
 
     @Override
-    public Table getTable(int tid) {
-        return hallDatabase.getTable(tid);
+    public Room getRoom(int rid) {
+        return hallDatabase.getRoom(rid);
     }
 
     @Override
-    public boolean updateTable(int tid, List<Board> boards, Score best) {
-        return hallDatabase.updateTable(tid, boards, best);
+    public boolean updateRoom(int rid, List<Board> boards, Score best) {
+        return hallDatabase.updateRoom(rid, boards, best);
     }
 
     @Override
-    public List<Board> getBoards(int tid) {
-        return tableDatabase.getBoards(tid);
+    public List<Board> getBoards(int rid) {
+        return roomDatabase.getBoards(rid);
     }
 
     @Override
-    public Board getBoard(int tid, int bid) {
-        return tableDatabase.getBoard(tid, bid);
+    public Board getBoard(int rid, int bid) {
+        return roomDatabase.getBoard(rid, bid);
     }
 
     @Override
-    public boolean updateBoard(int tid, Board board) {
-        return tableDatabase.updateBoard(tid, board);
+    public boolean updateBoard(int rid, Board board) {
+        return roomDatabase.updateBoard(rid, board);
     }
 
     @Override

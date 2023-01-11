@@ -5,12 +5,12 @@ import java.util.List;
 
 import chat.dim.g1248.GlobalVariable;
 import chat.dim.g1248.SharedDatabase;
-import chat.dim.g1248.model.Table;
+import chat.dim.g1248.model.Room;
 import chat.dim.sqlite.game.HallDatabase;
 
 public class Manager {
 
-    static final int MIN_TABLES = 5;
+    static final int MIN_ROOMS = 5;
 
     public static void main(String[] args) throws IOException {
         GlobalVariable shared = Client.shared;
@@ -23,14 +23,14 @@ public class Manager {
         SharedDatabase db = Client.createDatabase(config);
         HallDatabase hall = (HallDatabase) db.hallDatabase;
 
-        List<Table> tables = hall.getTables(0, 20);
-        int count = tables == null ? 0 : tables.size();
-        System.out.println(">>> Got " + count + " table(s)");
+        List<Room> rooms = hall.getRooms(0, 20);
+        int count = rooms == null ? 0 : rooms.size();
+        System.out.println(">>> Got " + count + " room(s)");
         int index = count;
-        for (; index < MIN_TABLES; ++index) {
-            System.out.println(">>> adding table " + index);
-            hall.addTable(null, null);
+        for (; index < MIN_ROOMS; ++index) {
+            System.out.println(">>> adding room " + index);
+            hall.addRoom(null, null);
         }
-        System.out.println(">>> " + (index - count) + " table(s) added.");
+        System.out.println(">>> " + (index - count) + " room(s) added.");
     }
 }

@@ -5,11 +5,11 @@ import java.util.List;
 import chat.dim.g1248.model.Board;
 
 /**
- *  Game Table
- *  ~~~~~~~~~~
+ *  Game Room
+ *  ~~~~~~~~~
  *
  *  JSON: {
- *      tid    : {TABLE_ID},
+ *      rid    : {ROOM_ID},
  *      // current playing boards
  *      boards : [
  *          {
@@ -31,11 +31,11 @@ import chat.dim.g1248.model.Board;
  *      ]
  *  }
  */
-public interface TableDBI {
+public interface RoomDBI {
 
-    List<Board> getBoards(int tid);
+    List<Board> getBoards(int rid);
 
-    Board getBoard(int tid, int bid);
+    Board getBoard(int rid, int bid);
 
-    boolean updateBoard(int tid, Board board);
+    boolean updateBoard(int rid, Board board);
 }

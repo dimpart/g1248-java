@@ -13,10 +13,10 @@ import chat.dim.type.Mapper;
  *  ~~~~~~~~~
  *
  *  JSON: {
- *      range  : "{start},{end}",  // count(tables) == end - start
- *      tables : [
+ *      range : "{start},{end}",  // count(rooms) == end - start
+ *      rooms : [
  *          {
- *              tid    : {TABLE_ID},
+ *              rid    : {ROOM_ID},
  *              // current playing boards
  *              boards : [
  *                  {
@@ -25,7 +25,7 @@ import chat.dim.type.Mapper;
  *                  },
  *                  //...
  *              ],
- *              // score of the winner in this table, may be null
+ *              // score of the winner in this room, may be null
  *              best   : {
  *                  bid    : {BOARD_ID},
  *                  gid    : {GAME_ID},      // game id
@@ -45,7 +45,7 @@ public class Hall extends Dictionary {
     }
 
     /**
-     *  Range for game tables
+     *  Range for game rooms
      *
      * @return [start, end)
      */
@@ -65,20 +65,20 @@ public class Hall extends Dictionary {
     }
 
     /**
-     *  Game tables within range [start, end)
+     *  Game rooms within range [start, end)
      *
-     * @return tables
+     * @return rooms
      */
     @SuppressWarnings("unchecked")
-    public List<Table> getTables() {
-        Object value = get("tables");
+    public List<Room> getRooms() {
+        Object value = get("rooms");
         if (value == null) {
             return new ArrayList<>();
         }
-        return Table.convertTables((List<Object>) value);
+        return Room.convertRooms((List<Object>) value);
     }
-    public void setTables(List<Table> tables) {
-        put("tables", Table.revertTables(tables));
+    public void setRooms(List<Room> rooms) {
+        put("rooms", Room.revertRooms(rooms));
     }
 
     //
