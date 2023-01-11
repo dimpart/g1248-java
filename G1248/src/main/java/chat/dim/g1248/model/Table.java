@@ -22,7 +22,7 @@ import chat.dim.type.Mapper;
  *              // details, will not show in hall
  *              gid    : {GAME_ID},      // game id
  *              score  : 10000,          // current sore
- *              state  : [               // current state
+ *              matrix : [               // current state matrix
  *                  0, 1, 2, 4,
  *                  0, 1, 2, 4,
  *                  0, 1, 2, 4,

@@ -30,7 +30,6 @@
  */
 package chat.dim;
 
-import chat.dim.core.Session;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.protocol.Command;

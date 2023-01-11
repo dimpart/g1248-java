@@ -45,6 +45,8 @@ public final class Range {
         } else if (other instanceof Range) {
             Range range = (Range) other;
             return start == range.start && end == range.end;
+        } else if (other instanceof String) {
+            return toString().equals(other);
         } else {
             return false;
         }

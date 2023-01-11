@@ -9,14 +9,14 @@ import chat.dim.math.Size;
 import chat.dim.type.Pair;
 import chat.dim.utils.Log;
 
-public class State extends Matrix {
+public class Stage extends Matrix {
 
-    public State(Size s) {
+    public Stage(Size s) {
         super(s);
         assert s.width == s.height : "error size: " + s;
     }
 
-    public State(int width, int height) {
+    public Stage(int width, int height) {
         super(width, height);
         assert width == height : "error size: " + width + "*" + height;
     }
@@ -257,14 +257,14 @@ public class State extends Matrix {
     }
 
     /**
-     *  Run all steps to build current state
+     *  Run all steps to build current state matrix
      *
      * @param steps - history steps
-     * @return game state
+     * @return game state matrix
      */
-    public static Pair<State, Integer> deduce(byte[] steps, Size size) {
+    public static Pair<Stage, Integer> deduce(byte[] steps, Size size) {
         assert steps.length > 0 : "steps error: " + Hex.encode(steps);
-        State matrix = new State(size);
+        Stage matrix = new Stage(size);
         // place first number
         Step next = new Step(steps[0]);
         matrix.showNumber(next);

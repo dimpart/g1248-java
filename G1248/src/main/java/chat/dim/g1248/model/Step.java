@@ -1,5 +1,7 @@
 package chat.dim.g1248.model;
 
+import java.util.Random;
+
 /**
  *  History Step
  *  ~~~~~~~~~~~~
@@ -24,9 +26,6 @@ public final class Step {
 
     public Step(byte step) {
         value = step;
-    }
-    public Step(int step) {
-        value = (byte) step;
     }
 
     @Override
@@ -65,6 +64,27 @@ public final class Step {
     public int getPosition(int spaces) {
         int rand = value & 0x3F;
         return rand % spaces;
+    }
+
+    //
+    //  Factory methods
+    //
+
+    public static Step from(byte value) {
+        return new Step(value);
+    }
+
+    public static Step first() {
+        Random random = new Random();
+        byte suffix = (byte) (random.nextInt() & 0x3F);
+        return from(suffix);
+    }
+
+    public static Step next(Direction direction) {
+        Random random = new Random();
+        byte suffix = (byte) (random.nextInt() & 0x3F);
+        byte prefix = (byte) ((direction.value & 0x03) << 6);
+        return from((byte) (prefix | suffix));
     }
 
     /**

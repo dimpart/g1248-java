@@ -45,6 +45,8 @@ public final class Point {
         } else if (other instanceof Point) {
             Point point = (Point) other;
             return x == point.x && y == point.y;
+        } else if (other instanceof String) {
+            return toString().equals(other);
         } else {
             return false;
         }

@@ -9,7 +9,7 @@ import java.util.Map;
 import chat.dim.format.JSON;
 import chat.dim.g1248.dbi.TableDBI;
 import chat.dim.g1248.model.Board;
-import chat.dim.g1248.model.Square;
+import chat.dim.g1248.model.Stage;
 import chat.dim.math.Size;
 import chat.dim.protocol.ID;
 import chat.dim.sql.SQLConditions;
@@ -47,7 +47,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
                     "player VARCHAR(64)",
                     "score INT",
                     "time TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-                    "state VARCHAR(100)",
+                    "matrix VARCHAR(100)",
                     "size VARCHAR(5)",
             };
             if (!createTable(T_BOARD, fields)) {
@@ -62,7 +62,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
                 String player = resultSet.getString("player");
                 int score = resultSet.getInt("score");
                 Time time = resultSet.getTime("time");
-                String state = resultSet.getString("state");
+                String matrix = resultSet.getString("matrix");
                 String size = resultSet.getString("size");
 
                 Map<String, Object> info = new HashMap<>();
@@ -74,8 +74,8 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
                 }
                 info.put("score", score);
                 info.put("time", time.getTime() / 1000.0f);
-                if (state != null && state.length() > 0) {
-                    info.put("state", JSON.decode(state));
+                if (matrix != null && matrix.length() > 0) {
+                    info.put("matrix", JSON.decode(matrix));
                 }
                 info.put("size", size);
                 return new Board(info);
@@ -84,9 +84,9 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
         return true;
     }
     private static final String[] SELECT_COLUMNS = {"tid", "bid", "gid",
-            "player", "score", "time", "state", "size"};
+            "player", "score", "time", "matrix", "size"};
     private static final String[] INSERT_COLUMNS = {"tid", "bid", "gid",
-            "player", "score", "state", "size"};
+            "player", "score", "matrix", "size"};
     private static final String T_BOARD = "t_game_board";
 
     @Override
@@ -124,7 +124,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
         ID player = board.getPlayer();
         int score = board.getScore();
         Date time = board.getTime();
-        List<Square> state = board.getSquares();
+        Stage matrix = board.getMatrix();
         Size size = board.getSize();
 
         if (time == null) {
@@ -133,7 +133,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
 
         String pid = player == null ? "" : player.toString();
         String now = chat.dim.type.Time.getFullTimeString(time);
-        String array = state == null ? "[]" : JSON.encode(Square.revert(state));
+        String array = matrix == null ? "[]" : JSON.encode(matrix.toArray());
 
         Board old = getBoard(tid, bid);
         if (old == null) {
@@ -153,7 +153,7 @@ public class TableDatabase extends DataTableHandler<Board> implements TableDBI {
         values.put("player", pid);
         values.put("score", score);
         values.put("time", now);
-        values.put("state", array);
+        values.put("matrix", array);
         values.put("size", size);
         return update(T_BOARD, values, conditions) > 0;
     }

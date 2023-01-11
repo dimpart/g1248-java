@@ -24,7 +24,7 @@ import chat.dim.utils.Log;
  *
  *      steps  : "BASE64",       // encoded steps
  *
- *      state  : [               // current state
+ *      matrix : [               // current state matrix
  *          0, 1, 2, 4,
  *          0, 1, 2, 4,
  *          0, 1, 2, 4,
@@ -37,7 +37,6 @@ public class History extends Board {
 
     public History(Map<String, Object> history) {
         super(history);
-        correct();
     }
 
     // create new game history
@@ -47,35 +46,46 @@ public class History extends Board {
 
     @Override
     public Map<String, Object> toMap() {
-        correct();
+        getMatrix();
         return super.toMap();
     }
 
-    private void correct() {
-        // 1. deduce state from history steps
+    @Override
+    public Stage getMatrix() {
+        // deduce state matrix from history steps
         byte[] steps = getSteps();
-        Pair<State, Integer> result = State.deduce(steps, getSize());
-        State matrix = result.first;
+        Pair<Stage, Integer> result = Stage.deduce(steps, getSize());
+        Stage matrix = result.first;
         int count = result.second;
-        if (count < steps.length) {
-            // step error
-            byte[] partial = new byte[count];
-            System.arraycopy(steps, 0, partial, 0, count);
-            setSteps(partial);
-            setSquares(matrix.toArray());
-            setScore(matrix.getScore());
-            Log.error("steps error, cut at " + count + "/" + steps.length + ": " + Hex.encode(partial));
+        if (count != steps.length) {
+            Log.error("steps error: " + count + "/" + steps.length + ", " + Hex.encode(steps));
+        } else if (matrix.getScore() != getScore()) {
+            Log.error("score not match: " + this);
+        } else if (matrix.equals(get("matrix"))) {
+            // OK
+            return matrix;
         }
+        // steps error
+        byte[] partial = new byte[count];
+        System.arraycopy(steps, 0, partial, 0, count);
+        setSteps(partial);
+        setMatrix(matrix);
+        Log.error("steps error, cut at " + count + "/" + steps.length + ": " + Hex.encode(partial));
+        return matrix;
     }
 
-    public boolean isValid() {
-        try {
-            return getMatrix() != null;
-        } catch (AssertionError e) {
-            //e.printStackTrace();
-            return false;
-        }
+    @Override
+    public void setMatrix(Stage matrix) {
+        setMatrix(matrix.toArray());
+        setScore(matrix.getScore());
+        setSize(matrix.size);
     }
+
+    /**
+     *  Check whether game over
+     *
+     * @return true on no space to move
+     */
     public boolean isOver() {
         return getMatrix().isOver();
     }
@@ -109,27 +119,6 @@ public class History extends Board {
         setSteps(buffer);
         // update time
         setTime(new Date());
-    }
-
-    public State getMatrix() {
-        // 1. deduce state from history steps
-        byte[] steps = getSteps();
-        State matrix = State.deduce(steps, getSize()).first;
-        // 2. check score
-        if (matrix.getScore() != getScore()) {
-            throw new AssertionError("score not match");
-        }
-        // 3. check state
-        if (!matrix.equals(get("state"))) {
-            throw new AssertionError("state not match");
-        }
-        // OK
-        return matrix;
-    }
-    public void setMatrix(State state) {
-        setSquares(state.toArray());
-        setScore(state.getScore());
-        setSize(state.size);
     }
 
     //

@@ -2,7 +2,6 @@ package chat.dim;
 
 import java.io.IOException;
 
-import chat.dim.core.Processor;
 import chat.dim.database.CipherKeyDatabase;
 import chat.dim.database.DocumentDatabase;
 import chat.dim.database.GroupDatabase;

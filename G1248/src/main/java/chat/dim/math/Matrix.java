@@ -25,8 +25,6 @@
  */
 package chat.dim.math;
 
-import chat.dim.g1248.model.Board;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -138,13 +136,16 @@ public class Matrix {
         }
     }
 
-    public void copy(Matrix other) {
-        assert size.equals(other.size) : "matrix size not match: " + size + ", " + other.size;
-        copy(other.values);
+    public void copy(Matrix matrix) {
+        assert size.equals(matrix.size) : "matrix size not match: " + size + ", " + matrix.size;
+        copy(matrix.values);
     }
-    public void copy(int[] other) {
-        assert values.length == other.length : "values length not match: " + values.length + ", " + other.length;
-        System.arraycopy(other, 0, values, 0, size.width * size.height);
+    public void copy(int[] array) {
+        assert values.length == array.length : "values length not match: " + values.length + ", " + array.length;
+        System.arraycopy(array, 0, values, 0, size.width * size.height);
+    }
+    public void copy(List<Integer> array) {
+        copy(array.stream().mapToInt(Integer::intValue).toArray());
     }
 
     public int getValue(int x, int y) {
@@ -246,8 +247,8 @@ public class Matrix {
     }
 
     public static void main(String[] args) {
-        final int width = Board.DEFAULT_SIZE.width;
-        final int height = Board.DEFAULT_SIZE.height;
+        final int width = 4;
+        final int height = 4;
         Matrix matrix = new Matrix(width, height);
         int x, y, value = 0;
         for (y = 0; y < height; ++y) {

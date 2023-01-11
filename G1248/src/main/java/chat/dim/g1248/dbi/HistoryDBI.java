@@ -16,7 +16,7 @@ import chat.dim.g1248.model.History;
  *
  *      steps  : "BASE64",       // encoded steps
  *
- *      state  : [               // current state
+ *      matrix : [               // current state matrix
  *          0, 1, 2, 4,
  *          0, 1, 2, 4,
  *          0, 1, 2, 4,

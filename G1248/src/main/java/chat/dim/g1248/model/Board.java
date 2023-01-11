@@ -20,7 +20,7 @@ import chat.dim.type.Mapper;
  *      gid    : {GAME_ID},      // game id
  *      score  : 10000,          // current sore
  *      time   : {TIMESTAMP},    // last update time
- *      state  : [               // current state
+ *      matrix : [               // current state matrix
  *          0, 1, 2, 4,
  *          0, 1, 2, 4,
  *          0, 1, 2, 4,
@@ -39,24 +39,33 @@ public class Board extends Score {
         super();
         setTid(tid);
         setBid(bid);
-        assert size.width == size.height : "error size: " + size;
-        State state = new State(size);
-        setSquares(state.toArray());
         setSize(size);
+        setMatrix(new Stage(size));
     }
 
     /**
-     *  Get squares as current gate state
+     *  Get squares as current gate state matrix
      *
      * @return squares
      */
     @SuppressWarnings("unchecked")
-    public List<Square> getSquares() {
-        Object state = get("state");
-        return Square.convert((List<Integer>) state);
+    public Stage getMatrix() {
+        Object matrix = get("matrix");
+        if (matrix instanceof List) {
+            List<Integer> numbers = (List<Integer>) matrix;
+            Size size = getSize();
+            assert numbers.size() == size.width * size.height : "matrix size not match: " + size + ", " + numbers;
+            Stage stage = new Stage(size);
+            stage.copy(numbers);
+            return stage;
+        }
+        throw new AssertionError("matrix error: " + matrix);
     }
-    public void setSquares(List<?> state) {
-        put("state", Square.revert(state));
+    public void setMatrix(Stage matrix) {
+        setMatrix(matrix.toArray());
+    }
+    public void setMatrix(List<Integer> numbers) {
+        put("matrix", numbers);
     }
 
     // board size
@@ -70,9 +79,6 @@ public class Board extends Score {
     }
     public void setSize(Size size) {
         put("size", size.toString());
-    }
-    public void setSize(int width, int height) {
-        setSize(new Size(width, height));
     }
     public static final Size DEFAULT_SIZE = new Size(4, 4);
 

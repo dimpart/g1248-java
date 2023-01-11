@@ -10,7 +10,7 @@ import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.g1248.dbi.HistoryDBI;
 import chat.dim.g1248.model.History;
-import chat.dim.g1248.model.State;
+import chat.dim.g1248.model.Stage;
 import chat.dim.math.Size;
 import chat.dim.protocol.ID;
 import chat.dim.sql.SQLConditions;
@@ -48,7 +48,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
                     "score INT",
                     "time TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
                     "steps TEXT",
-                    "state VARCHAR(100)",
+                    "matrix VARCHAR(100)",
                     "size VARCHAR(5)",
             };
             if (!createTable(T_HISTORY, fields)) {
@@ -64,7 +64,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
                 int score = resultSet.getInt("score");
                 Time time = resultSet.getTime("time");
                 String steps = resultSet.getString("steps");
-                String state = resultSet.getString("state");
+                String matrix = resultSet.getString("matrix");
                 String size = resultSet.getString("size");
 
                 Map<String, Object> info = new HashMap<>();
@@ -75,7 +75,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
                 info.put("score", score);
                 info.put("time", time.getTime() / 1000.0f);
                 info.put("steps", steps);
-                info.put("state", JSON.decode(state));
+                info.put("matrix", JSON.decode(matrix));
                 info.put("size", size);
                 return new History(info);
             };
@@ -83,9 +83,9 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         return true;
     }
     private static final String[] SELECT_COLUMNS = {"gid", "tid", "bid",
-            "player", "score", "time", "steps", "state", "size"};
+            "player", "score", "time", "steps", "matrix", "size"};
     private static final String[] INSERT_COLUMNS = {"tid", "bid",
-            "player", "score", "steps", "state", "size"};
+            "player", "score", "steps", "matrix", "size"};
     private static final String T_HISTORY = "t_game_history";
 
     @Override
@@ -108,7 +108,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         int score = history.getScore();
         //Date time = history.getTime();
         byte[] steps = history.getSteps();
-        State state = history.getMatrix();
+        Stage matrix = history.getMatrix();
         Size size = history.getSize();
 
         if (player == null) {
@@ -117,7 +117,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         }
 
         String hex = Hex.encode(steps);
-        String array = JSON.encode(state.toArray());
+        String array = JSON.encode(matrix.toArray());
 
         Object[] values = {tid, bid, player.toString(), score, hex, array, size};
         if (insert(T_HISTORY, INSERT_COLUMNS, values) <= 0) {
@@ -159,7 +159,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         int score = history.getScore();
         Date time = history.getTime();
         byte[] steps = history.getSteps();
-        State state = history.getMatrix();
+        Stage matrix = history.getMatrix();
         Size size = history.getSize();
 
         if (time == null) {
@@ -169,7 +169,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         String pid = player == null ? "" : player.toString();
         String now = chat.dim.type.Time.getFullTimeString(time);
         String hex = Hex.encode(steps);
-        String array = JSON.encode(state.toArray());
+        String array = JSON.encode(matrix.toArray());
 
         SQLConditions conditions = new SQLConditions();
         conditions.addCondition(null, "gid", "=", gid);
@@ -182,7 +182,7 @@ public class HistoryDatabase extends DataTableHandler<History> implements Histor
         values.put("score", score);
         values.put("time", now);
         values.put("steps", hex);
-        values.put("state", array);
+        values.put("matrix", array);
         values.put("size", size);
         return update(T_HISTORY, values, conditions) > 0;
     }

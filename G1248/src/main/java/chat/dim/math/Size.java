@@ -45,6 +45,8 @@ public final class Size {
         } else if (other instanceof Size) {
             Size size = (Size) other;
             return width == size.width && height == size.height;
+        } else if (other instanceof String) {
+            return toString().equals(other);
         } else {
             return false;
         }
