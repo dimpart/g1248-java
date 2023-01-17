@@ -1,6 +1,5 @@
 package chat.dim;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,7 +59,7 @@ public enum Roster {
 
         // 2. update record
         if (now <= 0) {
-            now = new Date().getTime();
+            now = System.currentTimeMillis();
         }
         allRecords.put(player, new Record(rid, bid, now));
 
@@ -95,7 +94,7 @@ public enum Roster {
         }
         // check last active time
         if (now <= 0) {
-            now = new Date().getTime();
+            now = System.currentTimeMillis();
         }
         final long expired = now - EXPIRES;
         return record.time < expired;
@@ -113,7 +112,7 @@ public enum Roster {
         Set<ID> room = allRooms.get(rid);
         if (room != null) {
             if (now <= 0) {
-                now = new Date().getTime();
+                now = System.currentTimeMillis();
             }
             final long expired = now - EXPIRES;
             Record record;
@@ -122,7 +121,7 @@ public enum Roster {
                 if (record == null || record.rid != rid) {
                     // record not match
                     continue;
-                } else if (record.time > expired) {
+                } else if (record.time < expired) {
                     // record expired
                     continue;
                 }
@@ -154,7 +153,7 @@ public enum Roster {
             // handshake not accepted
             return;
         }
-        Set<ID> gamers = getPlayers(rid, new Date().getTime());
+        Set<ID> gamers = getPlayers(rid, System.currentTimeMillis());
         gamers.remove(player);
         Log.info("broadcast game content: " + player + " => " + gamers);
         for (ID member : gamers) {
