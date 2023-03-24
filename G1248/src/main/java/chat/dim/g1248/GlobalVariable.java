@@ -6,6 +6,7 @@ import java.util.List;
 import chat.dim.CommonFacebook;
 import chat.dim.Config;
 import chat.dim.CryptoPlugins;
+import chat.dim.Register;
 import chat.dim.Terminal;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.SignKey;
@@ -16,7 +17,6 @@ import chat.dim.filesys.ExternalStorage;
 import chat.dim.g1248.handler.GameHallContentHandler;
 import chat.dim.g1248.handler.GameHistoryContentHandler;
 import chat.dim.g1248.handler.GameRoomContentHandler;
-import chat.dim.http.HTTPClient;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 
@@ -33,8 +33,7 @@ public enum GlobalVariable {
         CryptoPlugins.registerCryptoPlugins();
 
         // initialize all factories & plugins
-        HTTPClient http = HTTPClient.getInstance();
-        http.start();
+        Register.prepare();
     }
 
     // Step 1: load config

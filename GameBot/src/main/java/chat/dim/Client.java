@@ -97,12 +97,12 @@ public class Client extends Terminal {
         DatabaseConnector gdb = new DatabaseConnector(gdbPath);
 
         SharedDatabase db = SharedDatabase.getInstance();
-        db.privateKeyDatabase = new PrivateKeyDatabase(rootDir, pubDir, priDir, adb);
-        db.metaDatabase = new MetaDatabase(rootDir, pubDir, priDir, adb);
-        db.documentDatabase = new DocumentDatabase(rootDir, pubDir, priDir, adb);
-        db.userDatabase = new UserDatabase(rootDir, pubDir, priDir, adb);
-        db.groupDatabase = new GroupDatabase(rootDir, pubDir, priDir, adb);
-        db.cipherKeyDatabase = new CipherKeyDatabase(rootDir, pubDir, priDir, mdb);
+        db.privateKeyDatabase = new PrivateKeyDatabase(adb);
+        db.metaDatabase = new MetaDatabase(adb);
+        db.documentDatabase = new DocumentDatabase(adb);
+        db.userDatabase = new UserDatabase(adb);
+        db.groupDatabase = new GroupDatabase(adb);
+        db.cipherKeyDatabase = new CipherKeyDatabase(mdb);
 
         db.hallDatabase = new HallDatabase(gdb);
         db.roomDatabase = new RoomDatabase(gdb);

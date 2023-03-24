@@ -149,7 +149,7 @@ public enum Roster {
         }
         ClientSession session = messenger.getSession();
         ID uid = session.getIdentifier();
-        if (uid == null || !sessionState.equals(SessionState.RUNNING)) {
+        if (uid == null || !sessionState.equals(SessionState.Order.RUNNING)) {
             // handshake not accepted
             return;
         }

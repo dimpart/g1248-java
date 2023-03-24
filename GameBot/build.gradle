@@ -13,7 +13,7 @@ repositories {
 dependencies {
     implementation group: 'chat.dim.game', name: 'G1248', version: '0.0.1'
 
-    implementation group: 'chat.dim', name: 'SQLite', version: '0.0.3'
+    implementation group: 'chat.dim', name: 'SQLite', version: '0.1.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
